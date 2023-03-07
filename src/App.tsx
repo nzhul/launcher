@@ -19,4 +19,4 @@ root.render(
 );
 
 // Clears the annoying "Download the React DevTools for a better development experience" text
-console.clear();
+// console.clear();

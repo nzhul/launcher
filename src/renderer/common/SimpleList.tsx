@@ -1,25 +1,13 @@
-import { ipcRenderer } from "electron";
-import { useEffect } from "react";
-import fs from "fs-extra";
+import React, { useEffect } from "react";
 
 const SimpleList: React.FC<{ items: LazyListItem[] }> = ({ items }) => {
+  const getFiles = async (directoryName: string) => {
+    const files = await window.API.getFiles(directoryName);
+    console.log(files);
+  };
+
   useEffect(() => {
-    async function ffiles(dir: string) {
-      const files = await fs.readdir(dir);
-      console.log(files);
-    }
-
-    ffiles("C:\\local-nugets");
-
-    // async function fetchFiles() {
-    //   ipcRenderer.send("get-files", "C:\\local-nugets");
-    // }
-
-    // ipcRenderer.on("files", (event, fetchedFiles) => {
-    //   console.log(fetchedFiles);
-    // });
-
-    // fetchFiles();
+    getFiles("C:\\local-nugets");
   });
 
   return (
