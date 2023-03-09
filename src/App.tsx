@@ -1,4 +1,4 @@
-import { Button, Container } from "@mui/material";
+import Container from "@mui/material/Container";
 import React from "react";
 import * as ReactDOM from "react-dom/client";
 import SimpleList from "./renderer/common/SimpleList";
