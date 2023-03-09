@@ -14,8 +14,11 @@ contextBridge.exposeInMainWorld("API", {
       });
     });
   },
-  downloadFile: async (url: string) => {
-    return await ipcRenderer.invoke("download-file", url);
+  downloadFile: async (url: string, resume?: boolean) => {
+    return await ipcRenderer.invoke("download-file", url, resume);
+  },
+  downloadPause: async () => {
+    ipcRenderer.send("download-pause");
   },
   onDownloadProgress: (listener: (progress: number) => void) => {
     ipcRenderer.on("download-progress", (event, progress) => {

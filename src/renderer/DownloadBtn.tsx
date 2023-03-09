@@ -11,19 +11,24 @@ const DownloadBtn = () => {
   const [paused, setPaused] = useState<boolean>(false);
   const [progressPercent, setProgressPercent] = useState<number>(0);
 
-  const startDownload = async () => {
+  const startDownload = async (resume?: boolean) => {
     try {
       console.log("Download Start");
 
       setDownloading(true);
 
       await window.API.downloadFile(
-        "https://izotcomputers.com/team/videos/11_runuta_prai_borbata.mp4"
+        "https://izotcomputers.com/team/videos/11_runuta_prai_borbata.mp4",
+        // "https://research.nhm.org/pdfs/10840/10840.pdf",
+        resume
       );
 
-      setDownloading(false);
+      // await window.API.downloadFile(
+      //   "https://izotcomputers.com/team/videos/11_runuta_prai_borbata.mp4",
+      //   resume
+      // );
 
-      console.log("Download Complete");
+      setDownloading(false);
     } catch (error) {
       console.log(error);
     }
@@ -36,11 +41,13 @@ const DownloadBtn = () => {
 
   const pauseDownload = async () => {
     console.log("Pausing");
+    window.API.downloadPause();
     setPaused(true);
   };
 
   const resumeDownload = async () => {
     console.log("Resuming");
+    startDownload(true);
     setPaused(false);
   };
 
@@ -58,7 +65,7 @@ const DownloadBtn = () => {
           startDownload();
         }}
         variant="contained"
-        disabled={downloading}
+        disabled={downloading} // TODO: Listen for download-completed event!
         sx={{ mr: 1 }}
       >
         <span>Download</span>
@@ -80,7 +87,6 @@ const DownloadBtn = () => {
           onClick={() => {
             resumeDownload();
           }}
-          disabled={!downloading}
         >
           <PlayArrow />
         </IconButton>

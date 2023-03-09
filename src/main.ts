@@ -72,30 +72,82 @@ ipcMain.on("get-files", (event, directoryName) => {
   event.reply("get-files-reply", fileObjects);
 });
 
-ipcMain.handle("download-file", async (event, url: string) => {
-  // eslint-disable-next-line no-debugger
-  console.log("Download start");
-  const response = await fetch(url);
+const filePath = "C:\\Downloads\\";
 
-  if (!response.ok) {
-    throw new Error(`Failed to download file ${response.statusText}`);
+let controller: AbortController | undefined;
+let downloadedBytes = 0;
+let total = 0;
+
+ipcMain.handle(
+  "download-file",
+  async (event, url: string, resume?: boolean) => {
+    const fileName = path.basename(url);
+    const fullFilePath = path.join(filePath, fileName);
+
+    controller = new AbortController();
+
+    if (resume) {
+      downloadedBytes = fs.statSync(fullFilePath).size;
+      console.log(`Resuming download! Start bytes: ${downloadedBytes}`);
+    } else {
+      downloadedBytes = 0;
+    }
+
+    const options = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/octet-stream",
+        Range: `bytes=${downloadedBytes}-`,
+      },
+      signal: controller?.signal,
+    };
+
+    const response = await fetch(url, options);
+
+    if (!response.ok) {
+      throw new Error(`Failed to download file ${response.statusText}`);
+    }
+
+    // if it is the first request - we store the total lenght
+    if (!resume) {
+      const contentLength = response.headers.get("content-length");
+      total = contentLength ? parseInt(contentLength, 10) : NaN;
+    }
+
+    const fileStream = fs.createWriteStream(fullFilePath, {
+      flags: resume ? "a" : "w",
+    });
+    response.body.pipe(fileStream);
+
+    response.body.on("data", (chunk: Buffer) => {
+      downloadedBytes += chunk.length;
+      const progress = isNaN(total) ? NaN : downloadedBytes / total;
+      event.sender.send("download-progress", progress);
+    });
+
+    response.body.on("end", () => {
+      fileStream.end();
+      fileStream.close();
+      event.sender.send("download-complete", fullFilePath); // TODO: Start listening for this event in the frontend!
+    });
+
+    response.body.on("error", (err: Error) => {
+      // error is thrown also when we abort/pause
+      fileStream.end();
+      fileStream.close();
+    });
+
+    return new Promise<void>((resolve, reject) => {
+      fileStream.on("close", resolve);
+      fileStream.on("error", reject);
+    });
   }
+);
 
-  const contentLength = response.headers.get("content-length");
-  const total = contentLength ? parseInt(contentLength, 10) : NaN;
-  let loaded = 0;
-
-  const fileStream = fs.createWriteStream("C:\\Downloads\\video.mp4");
-  response.body.pipe(fileStream);
-
-  response.body.on("data", (chunk: Buffer) => {
-    loaded += chunk.length;
-    const progress = isNaN(total) ? NaN : loaded / total;
-    event.sender.send("download-progress", progress);
-  });
-
-  return new Promise<void>((resolve, reject) => {
-    fileStream.on("close", resolve);
-    fileStream.on("error", reject);
-  });
+ipcMain.on("download-pause", () => {
+  if (controller) {
+    console.log("download paused!");
+    controller.abort();
+    controller = undefined;
+  }
 });
