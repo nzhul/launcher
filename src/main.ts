@@ -85,6 +85,8 @@ ipcMain.handle(
     const fullFilePath = path.join(filePath, fileName);
 
     controller = new AbortController();
+    const startTime = Date.now();
+    let speedBytes = 0;
 
     if (resume) {
       downloadedBytes = fs.statSync(fullFilePath).size;
@@ -121,8 +123,16 @@ ipcMain.handle(
 
     response.body.on("data", (chunk: Buffer) => {
       downloadedBytes += chunk.length;
+      speedBytes += chunk.length;
       const progress = isNaN(total) ? NaN : downloadedBytes / total;
-      event.sender.send("download-progress", progress);
+      const elapsedTime = (Date.now() - startTime) / 1000; // seconds
+      const currentSpeed = speedBytes / elapsedTime; // bytes/second
+      const currentSpeedMB = currentSpeed / (1024 * 1024);
+
+      event.sender.send("download-progress", {
+        progress,
+        speed: currentSpeedMB,
+      });
     });
 
     response.body.on("end", () => {

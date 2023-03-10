@@ -20,9 +20,11 @@ contextBridge.exposeInMainWorld("API", {
   downloadPause: async () => {
     ipcRenderer.send("download-pause");
   },
-  onDownloadProgress: (listener: (progress: number) => void) => {
-    ipcRenderer.on("download-progress", (event, progress) => {
-      listener(progress);
+  onDownloadProgress: (
+    listener: (status: { progress: number; speed: number }) => void
+  ) => {
+    ipcRenderer.on("download-progress", (event, status) => {
+      listener(status);
     });
   },
   removeListener: () => {

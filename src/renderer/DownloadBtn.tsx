@@ -5,11 +5,13 @@ import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
 import LinearProgress from "@mui/material/LinearProgress";
 import { useEffect, useState } from "react";
+import Box from "@mui/material/Box";
 
 const DownloadBtn = () => {
   const [downloading, setDownloading] = useState<boolean>(false);
   const [paused, setPaused] = useState<boolean>(false);
   const [progressPercent, setProgressPercent] = useState<number>(0);
+  const [speed, setSpeed] = useState<string>();
 
   const startDownload = async (resume?: boolean) => {
     try {
@@ -18,6 +20,7 @@ const DownloadBtn = () => {
       setDownloading(true);
 
       await window.API.downloadFile(
+        // "https://izotcomputers.com/katalog/web/files/katalog.pdf",
         "https://izotcomputers.com/team/videos/11_runuta_prai_borbata.mp4",
         // "https://research.nhm.org/pdfs/10840/10840.pdf",
         resume
@@ -34,9 +37,15 @@ const DownloadBtn = () => {
     }
   };
 
-  const handleDownloadProgress = (progress: number) => {
-    const percentage = Math.round(progress * 100 * 1e2) / 1e2;
+  const handleDownloadProgress = (status: {
+    progress: number;
+    speed: number;
+  }) => {
+    const percentage = Math.round(status.progress * 100 * 1e2) / 1e2;
     setProgressPercent(percentage);
+
+    const speedString = status.speed.toFixed(2);
+    setSpeed(speedString);
   };
 
   const pauseDownload = async () => {
@@ -91,16 +100,27 @@ const DownloadBtn = () => {
           <PlayArrow />
         </IconButton>
       )}
-      <Grid container spacing={2} columns={{ xs: 6, md: 12 }}>
-        <Grid item xs={10}>
+
+      <Grid container spacing={2} columns={{ xs: 6, md: 12 }} sx={{ mt: 1 }}>
+        <Grid item xs={12} alignContent={"center"} textAlign={"center"}>
           <LinearProgress
             variant="determinate"
             value={progressPercent}
-            sx={{ mt: 5 }}
+            sx={{
+              mr: 10,
+              height: 10,
+              borderRadius: 10,
+              position: "relative",
+            }}
           />
+          <Box sx={{ float: "right", position: "relative", top: -17, left: 0 }}>
+            {progressPercent} %
+          </Box>
         </Grid>
-        <Grid item xs={2}>
-          {progressPercent} %
+      </Grid>
+      <Grid container columns={{ xs: 6, md: 12 }}>
+        <Grid item xs={6}>
+          Speed: {speed} Mb/s
         </Grid>
       </Grid>
     </>
