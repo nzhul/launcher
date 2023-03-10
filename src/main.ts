@@ -77,6 +77,7 @@ const filePath = "C:\\Downloads\\";
 let controller: AbortController | undefined;
 let downloadedBytes = 0;
 let total = 0;
+const pauseFile = path.join(app.getPath("userData"), "pausedownload.json"); // path to file for storing paused download data
 
 ipcMain.handle(
   "download-file",
@@ -89,7 +90,7 @@ ipcMain.handle(
     let speedBytes = 0;
 
     if (resume) {
-      downloadedBytes = fs.statSync(fullFilePath).size;
+      downloadedBytes = parseInt(fs.readFileSync(pauseFile, "utf-8"));
       console.log(`Resuming download! Start bytes: ${downloadedBytes}`);
     } else {
       downloadedBytes = 0;
@@ -138,13 +139,17 @@ ipcMain.handle(
     response.body.on("end", () => {
       fileStream.end();
       fileStream.close();
+      fs.unlinkSync(pauseFile); // delete paused download data
       event.sender.send("download-complete", fullFilePath); // TODO: Start listening for this event in the frontend!
     });
 
     response.body.on("error", (err: Error) => {
-      // error is thrown also when we abort/pause
+      // TODO:
+      // Store a json object in pauseFile that includes the following: downloadedBytes, totalBytes, progress and version
       fileStream.end();
       fileStream.close();
+      fs.writeFileSync(pauseFile, downloadedBytes.toString(), "utf-8"); // save paused download data to file
+      console.log(`Download paused at ${downloadedBytes} bytes: ${err}`);
     });
 
     return new Promise<void>((resolve, reject) => {
