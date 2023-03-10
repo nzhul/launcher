@@ -6,8 +6,10 @@ import IconButton from "@mui/material/IconButton";
 import LinearProgress from "@mui/material/LinearProgress";
 import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
+import { DownloadState } from "../../src/models/downloadState";
 
 const DownloadBtn = () => {
+  const [state, setState] = useState<DownloadState | undefined>();
   const [downloading, setDownloading] = useState<boolean>(false);
   const [paused, setPaused] = useState<boolean>(false);
   const [progressPercent, setProgressPercent] = useState<number>(0);
@@ -41,8 +43,7 @@ const DownloadBtn = () => {
     progress: number;
     speed: number;
   }) => {
-    const percentage = Math.round(status.progress * 100 * 1e2) / 1e2;
-    setProgressPercent(percentage);
+    setProgressPercent(status.progress);
 
     const speedString = status.speed.toFixed(2);
     setSpeed(speedString);
@@ -60,7 +61,21 @@ const DownloadBtn = () => {
     setPaused(false);
   };
 
+  const checkState = async () => {
+    try {
+      const state = await window.API.getState();
+      if (state) {
+        setState(state);
+        setProgressPercent(state.progress);
+        setPaused(true);
+      }
+    } catch (error) {
+      console.log("no pause file");
+    }
+  };
+
   useEffect(() => {
+    checkState();
     window.API.onDownloadProgress(handleDownloadProgress);
     return () => {
       window.API.removeListener();
@@ -114,7 +129,7 @@ const DownloadBtn = () => {
             }}
           />
           <Box sx={{ float: "right", position: "relative", top: -17, left: 0 }}>
-            {progressPercent} %
+            {progressPercent.toFixed(2)} %
           </Box>
         </Grid>
       </Grid>

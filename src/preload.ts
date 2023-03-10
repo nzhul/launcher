@@ -14,6 +14,9 @@ contextBridge.exposeInMainWorld("API", {
       });
     });
   },
+  getState: async () => {
+    return await ipcRenderer.invoke("get-state");
+  },
   downloadFile: async (url: string, resume?: boolean) => {
     return await ipcRenderer.invoke("download-file", url, resume);
   },
