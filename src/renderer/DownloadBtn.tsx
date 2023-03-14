@@ -22,8 +22,9 @@ const DownloadBtn = () => {
       setDownloading(true);
 
       await window.API.downloadFile(
+        "https://github.com/microsoft/AzureStorageExplorer/archive/refs/tags/v1.28.1.zip",
         // "https://izotcomputers.com/katalog/web/files/katalog.pdf",
-        "https://izotcomputers.com/team/videos/11_runuta_prai_borbata.mp4",
+        // "https://izotcomputers.com/team/videos/11_runuta_prai_borbata.mp4",
         // "https://research.nhm.org/pdfs/10840/10840.pdf",
         resume
       );
