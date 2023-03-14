@@ -30,7 +30,13 @@ contextBridge.exposeInMainWorld("API", {
       listener(status);
     });
   },
+  onDownloadComplete: (listener: (downloadPath: string) => void) => {
+    ipcRenderer.on("download-complete", (event, downloadPath) => {
+      listener(downloadPath);
+    });
+  },
   removeListener: () => {
     ipcRenderer.removeAllListeners("download-progress");
+    ipcRenderer.removeAllListeners("download-complete");
   },
 });

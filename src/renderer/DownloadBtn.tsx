@@ -7,6 +7,7 @@ import LinearProgress from "@mui/material/LinearProgress";
 import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import { DownloadState } from "../../src/models/downloadState";
+import Typography from "@mui/material/Typography";
 
 const DownloadBtn = () => {
   const [state, setState] = useState<DownloadState | undefined>();
@@ -14,17 +15,21 @@ const DownloadBtn = () => {
   const [paused, setPaused] = useState<boolean>(false);
   const [progressPercent, setProgressPercent] = useState<number>(0);
   const [speed, setSpeed] = useState<string>();
+  const [downloadStarted, setDownloadStarted] = useState<boolean>(false);
+  const [downloadComplete, setDownloadComplete] = useState<boolean>(false);
+  const [remainingMB, setRemainingMB] = useState<number>(0);
 
   const startDownload = async (resume?: boolean) => {
     try {
       console.log("Download Start");
 
+      setDownloadStarted(true);
       setDownloading(true);
 
       await window.API.downloadFile(
-        "https://github.com/microsoft/AzureStorageExplorer/archive/refs/tags/v1.28.1.zip",
+        // "https://github.com/microsoft/AzureStorageExplorer/archive/refs/tags/v1.28.1.zip",
         // "https://izotcomputers.com/katalog/web/files/katalog.pdf",
-        // "https://izotcomputers.com/team/videos/11_runuta_prai_borbata.mp4",
+        "https://izotcomputers.com/team/videos/11_runuta_prai_borbata.mp4",
         // "https://research.nhm.org/pdfs/10840/10840.pdf",
         resume
       );
@@ -38,16 +43,6 @@ const DownloadBtn = () => {
     } catch (error) {
       console.log(error);
     }
-  };
-
-  const handleDownloadProgress = (status: {
-    progress: number;
-    speed: number;
-  }) => {
-    setProgressPercent(status.progress);
-
-    const speedString = status.speed.toFixed(2);
-    setSpeed(speedString);
   };
 
   const pauseDownload = async () => {
@@ -69,15 +64,41 @@ const DownloadBtn = () => {
         setState(state);
         setProgressPercent(state.progress);
         setPaused(true);
+        setDownloadStarted(true);
+
+        const mb = (state.totalBytes - state.downloadedBytes) / (1024 * 1024);
+        setRemainingMB(mb);
       }
     } catch (error) {
       console.log("no pause file");
     }
   };
 
+  const handleDownloadProgress = (status: {
+    totalBytes: number;
+    downloadedBytes: number;
+    progress: number;
+    speed: number;
+  }) => {
+    setProgressPercent(status.progress);
+
+    const speedString = status.speed.toFixed(2);
+    setSpeed(speedString);
+
+    const mb = (status.totalBytes - status.downloadedBytes) / (1024 * 1024);
+    setRemainingMB(mb);
+  };
+
+  const handleDownloadComplete = (path: string) => {
+    console.log("Complete: " + path);
+    setDownloadComplete(true);
+    setDownloadStarted(false);
+  };
+
   useEffect(() => {
     checkState();
     window.API.onDownloadProgress(handleDownloadProgress);
+    window.API.onDownloadComplete(handleDownloadComplete);
     return () => {
       window.API.removeListener();
     };
@@ -90,7 +111,7 @@ const DownloadBtn = () => {
           startDownload();
         }}
         variant="contained"
-        disabled={downloading} // TODO: Listen for download-completed event!
+        disabled={downloadStarted} // TODO: Listen for download-completed event!
         sx={{ mr: 1 }}
       >
         <span>Download</span>
@@ -136,7 +157,11 @@ const DownloadBtn = () => {
       </Grid>
       <Grid container columns={{ xs: 6, md: 12 }}>
         <Grid item xs={6}>
-          Speed: {speed} Mb/s
+          <Typography variant="body1" component="span">
+            <span>
+              {remainingMB.toFixed(0)} MB remaining @ speed: {speed} Mb/s
+            </span>
+          </Typography>
         </Grid>
       </Grid>
     </>

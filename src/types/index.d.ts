@@ -14,6 +14,7 @@ declare global {
       onDownloadProgress: (
         listener: (status: { progress: number; speed: number }) => void
       ) => void;
+      onDownloadComplete: (listener: (downloadPath: string) => void) => void;
       removeListener: () => void;
     };
   }

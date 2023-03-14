@@ -181,6 +181,8 @@ ipcMain.handle(
       const currentTime = Date.now();
       if (currentTime - lastReportTime > MIN_SEND_INTERVAL_MS) {
         event.sender.send("download-progress", {
+          downloadedBytes,
+          totalBytes: total,
           progress,
           speed: currentSpeedMB,
         });
