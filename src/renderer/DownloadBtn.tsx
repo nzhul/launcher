@@ -10,7 +10,6 @@ import { DownloadState } from "../../src/models/downloadState";
 import Typography from "@mui/material/Typography";
 
 const DownloadBtn = () => {
-  const [state, setState] = useState<DownloadState | undefined>();
   const [downloading, setDownloading] = useState<boolean>(false);
   const [paused, setPaused] = useState<boolean>(false);
   const [progressPercent, setProgressPercent] = useState<number>(0);
@@ -61,7 +60,6 @@ const DownloadBtn = () => {
     try {
       const state = await window.API.getState();
       if (state) {
-        setState(state);
         setProgressPercent(state.progress);
         setPaused(true);
         setDownloadStarted(true);
@@ -74,12 +72,7 @@ const DownloadBtn = () => {
     }
   };
 
-  const handleDownloadProgress = (status: {
-    totalBytes: number;
-    downloadedBytes: number;
-    progress: number;
-    speed: number;
-  }) => {
+  const handleDownloadProgress = (status: DownloadState) => {
     setProgressPercent(status.progress);
 
     const speedString = status.speed.toFixed(2);

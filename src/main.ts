@@ -106,7 +106,7 @@ ipcMain.handle("get-state", async (_) => {
   }
 
   const downloadStateString = fs.readFileSync(pauseFile, "utf-8");
-  const downloadState = JSON.parse(downloadStateString);
+  const downloadState: DownloadState = JSON.parse(downloadStateString);
   return downloadState;
 });
 
