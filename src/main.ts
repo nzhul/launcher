@@ -21,8 +21,12 @@ if (require("electron-squirrel-startup")) {
 const createWindow = (): void => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    height: 800,
-    width: 1500,
+    height: 832,
+    width: 1280,
+    backgroundColor: "#3d3d3d",
+    minWidth: 1000,
+    minHeight: 640,
+    frame: false,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -38,7 +42,6 @@ const createWindow = (): void => {
 };
 
 const getRepoInfo = async () => {
-
   // note: I am doing this decoding only to hide the token from github stupid detection alg that revokes tokens.
   // this is just a simple read-only token from a blank account.
   const decoded = Buffer.from(
@@ -62,7 +65,6 @@ const getRepoInfo = async () => {
   );
 
   // eslint-disable-next-line no-debugger
-  debugger;
   console.log(response);
 };
 
@@ -71,7 +73,7 @@ const getRepoInfo = async () => {
 // Some APIs can only be used after this event occurs.
 app.on("ready", () => {
   createWindow();
-  getRepoInfo();
+  // getRepoInfo();
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common

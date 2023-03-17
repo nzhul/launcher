@@ -8,14 +8,16 @@ import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import { DownloadState } from "../../src/models/downloadState";
 import Typography from "@mui/material/Typography";
+import Settings from "@mui/icons-material/Settings";
 
 const DownloadBtn = () => {
   const [downloading, setDownloading] = useState<boolean>(false);
   const [paused, setPaused] = useState<boolean>(false);
   const [progressPercent, setProgressPercent] = useState<number>(0);
-  const [speed, setSpeed] = useState<string>();
+  const [speed, setSpeed] = useState<string>("0");
   const [downloadStarted, setDownloadStarted] = useState<boolean>(false);
   const [downloadComplete, setDownloadComplete] = useState<boolean>(false);
+  const [totalMB, setTotalMB] = useState<number>(0);
   const [remainingMB, setRemainingMB] = useState<number>(0);
 
   const startDownload = async (resume?: boolean) => {
@@ -26,6 +28,7 @@ const DownloadBtn = () => {
       setDownloading(true);
 
       await window.API.downloadFile(
+        // "https://github.com/nzhul/tic-tac-toe-online/releases/download/v15/build-StandaloneWindows64-v15.zip",
         // "https://github.com/microsoft/AzureStorageExplorer/archive/refs/tags/v1.28.1.zip",
         // "https://izotcomputers.com/katalog/web/files/katalog.pdf",
         "https://izotcomputers.com/team/videos/11_runuta_prai_borbata.mp4",
@@ -78,14 +81,33 @@ const DownloadBtn = () => {
     const speedString = status.speed.toFixed(2);
     setSpeed(speedString);
 
-    const mb = (status.totalBytes - status.downloadedBytes) / (1024 * 1024);
-    setRemainingMB(mb);
+    const remainingMB =
+      (status.totalBytes - status.downloadedBytes) / (1024 * 1024);
+    setRemainingMB(remainingMB);
+
+    if (totalMB != 0) return;
+    const mb = status.totalBytes / (1024 * 1024);
+    setTotalMB(mb);
   };
 
   const handleDownloadComplete = (path: string) => {
     console.log("Complete: " + path);
     setDownloadComplete(true);
     setDownloadStarted(false);
+  };
+
+  const resolveLabel = () => {
+    let label = "INSTALL";
+
+    if (downloadStarted && paused) {
+      label = "PAUSED";
+    }
+
+    if (downloadStarted && !paused) {
+      label = "DOWNLOADING";
+    }
+
+    return label;
   };
 
   useEffect(() => {
@@ -98,66 +120,124 @@ const DownloadBtn = () => {
   }, []);
 
   return (
-    <>
-      <Button
-        onClick={() => {
-          startDownload();
-        }}
-        variant="contained"
-        disabled={downloadStarted} // TODO: Listen for download-completed event!
-        sx={{ mr: 1 }}
-      >
-        <span>Download</span>
-      </Button>
-
-      {!paused && downloading && (
-        <IconButton
+    <Box
+      sx={{
+        position: "fixed",
+        bottom: 10,
+        width: "300px",
+      }}
+    >
+      <Box sx={{ display: "flex" }}>
+        <Button
           onClick={() => {
-            pauseDownload();
+            startDownload();
           }}
-          disabled={!downloading}
-        >
-          <Pause />
-        </IconButton>
-      )}
-
-      {paused && (
-        <IconButton
-          onClick={() => {
-            resumeDownload();
+          variant="contained"
+          disabled={downloadStarted} // TODO: Listen for download-completed event!
+          sx={{
+            width: "100%",
+            height: "70px",
+            fontSize: 24,
+            letterSpacing: 3,
+            borderRadius: "5px 0px 0px 5px",
           }}
         >
-          <PlayArrow />
-        </IconButton>
-      )}
-
-      <Grid container spacing={2} columns={{ xs: 6, md: 12 }} sx={{ mt: 1 }}>
-        <Grid item xs={12} alignContent={"center"} textAlign={"center"}>
-          <LinearProgress
-            variant="determinate"
-            value={progressPercent}
+          {resolveLabel()}
+        </Button>
+        <Button
+          variant="contained"
+          sx={{
+            borderRadius: "0px 5px 5px 0px",
+            ml: "2px",
+            minWidth: "45px",
+            width: "45px",
+            padding: 0,
+            "&:hover > .settingsIcon": {
+              transform: "rotate(90deg)",
+            },
+          }}
+        >
+          <Settings
+            className="settingsIcon"
             sx={{
-              mr: 10,
-              height: 10,
-              borderRadius: 10,
-              position: "relative",
+              transition: "transform 0.2s ease-out",
+              width: 30,
+              height: 30,
             }}
           />
-          <Box sx={{ float: "right", position: "relative", top: -17, left: 0 }}>
-            {progressPercent.toFixed(2)} %
-          </Box>
-        </Grid>
-      </Grid>
-      <Grid container columns={{ xs: 6, md: 12 }}>
-        <Grid item xs={6}>
-          <Typography variant="body1" component="span">
-            <span>
-              {remainingMB.toFixed(0)} MB remaining @ speed: {speed} Mb/s
-            </span>
-          </Typography>
-        </Grid>
-      </Grid>
-    </>
+        </Button>
+      </Box>
+
+      <Box
+        sx={{ width: 300, height: 40, display: "flex", alignItems: "center" }}
+      >
+        <LinearProgress
+          variant="determinate"
+          value={progressPercent}
+          sx={{
+            mr: 2,
+            height: 10,
+            borderRadius: 10,
+            width: "100%",
+            backgroundColor: "#707070",
+            "& .MuiLinearProgress-bar": {
+              backgroundColor: "#D9D9D9",
+            },
+          }}
+        />
+        <Box>{progressPercent.toFixed(2)}&nbsp;%</Box>
+
+        {paused && (
+          <IconButton
+            sx={{
+              color: "rgba(255,255,255,0.5)",
+              backgroundColor: "none",
+              "&:hover": {
+                color: "white",
+              },
+            }}
+            onClick={() => {
+              resumeDownload();
+            }}
+          >
+            <PlayArrow />
+          </IconButton>
+        )}
+
+        {!paused && downloading && (
+          <IconButton
+            sx={{
+              color: "rgba(255,255,255,0.5)",
+              backgroundColor: "none",
+              "&:hover": {
+                color: "white",
+              },
+            }}
+            onClick={() => {
+              pauseDownload();
+            }}
+            disabled={!downloading}
+          >
+            <Pause />
+          </IconButton>
+        )}
+      </Box>
+
+      <Typography
+        variant="body1"
+        component="div"
+        sx={{ mt: -1, fontSize: "14px" }}
+      >
+        <span>
+          <span style={{ color: "rgba(255,255,255,0.8)" }}>
+            {remainingMB.toFixed(0)}{" "}
+          </span>
+          <span style={{ color: "#909090" }}>/ {totalMB.toFixed(0)} Mb @ </span>
+          <span style={{ color: "rgba(255,255,255,0.8)" }}>{speed}</span>{" "}
+          <span style={{ color: "#909090" }}>Mb/s</span>
+        </span>
+      </Typography>
+    </Box>
   );
 };
 
