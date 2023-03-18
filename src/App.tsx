@@ -4,7 +4,7 @@ import Grid from "@mui/material/Grid";
 import React from "react";
 import * as ReactDOM from "react-dom/client";
 import ChatList from "./renderer/chat/ChatList";
-import DownloadBtn from "./renderer/DownloadBtn";
+import DownloadBtn from "./renderer/features/download/DownloadBtn";
 import NavBar from "./renderer/layout/Navbar";
 import { initializeTheme } from "./renderer/layout/Theme";
 

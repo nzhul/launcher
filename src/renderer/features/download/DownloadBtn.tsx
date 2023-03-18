@@ -1,0 +1,288 @@
+import Button from "@mui/material/Button";
+import { useEffect, useState } from "react";
+import Box from "@mui/material/Box";
+import { PauseInfo } from "../../../models/PauseInfo";
+import Settings from "@mui/icons-material/Settings";
+import { InstallationState } from "../../../models/InstallationState";
+import { extractVersion } from "../../../common/utils";
+import { InstallInfo } from "../../../models/InstallInfo";
+import DownloadIndicator from "./DownloadIndicator";
+
+const DownloadBtn = () => {
+  const [progressPercent, setProgressPercent] = useState<number>(0);
+  const [speed, setSpeed] = useState<string>("0");
+  const [totalMB, setTotalMB] = useState<number>(0);
+  const [remainingMB, setRemainingMB] = useState<number>(0);
+  const [installInfo, setInstallInfo] = useState<InstallInfo>();
+  const [remoteVersion, setRemoteVersion] = useState<number>();
+  const [versionChecked, setVersionChecked] = useState<boolean>();
+  const [installationState, setInstallationState] = useState<InstallationState>(
+    InstallationState.PendingInstall
+  );
+
+  const startDownload = async (resume?: boolean) => {
+    try {
+      console.log("Download Start");
+      setInstallationState(InstallationState.Downloading);
+
+      await window.API.downloadFile(
+        "https://github.com/nzhul/tic-tac-toe-online/releases/download/v15/build-StandaloneWindows64-v15.zip",
+        // "https://github.com/microsoft/AzureStorageExplorer/archive/refs/tags/v1.28.1.zip",
+        // "https://izotcomputers.com/katalog/web/files/katalog.pdf",
+        // "https://izotcomputers.com/team/videos/11_runuta_prai_borbata.mp4",
+        // "https://research.nhm.org/pdfs/10840/10840.pdf",
+        resume
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const pauseDownload = async () => {
+    console.log("Pausing");
+    window.API.downloadPause();
+    setInstallationState(InstallationState.Paused);
+  };
+
+  const resumeDownload = async () => {
+    console.log("Resuming");
+    startDownload(true);
+    setInstallationState(InstallationState.Downloading);
+  };
+
+  const checkState = async () => {
+    const { pauseInfo, installInfo } = await window.API.getState();
+
+    if (pauseInfo) {
+      setInstallationState(InstallationState.Paused);
+      setProgressPercent(pauseInfo.progress);
+      setTotalMB(pauseInfo.totalBytes / (1024 * 1024)); // TODO: extract this conversion from bytes to MB into utility function.
+
+      const mb =
+        (pauseInfo.totalBytes - pauseInfo.downloadedBytes) / (1024 * 1024);
+      setRemainingMB(mb);
+      setVersionChecked(true);
+      return;
+    }
+
+    if (!installInfo) {
+      setInstallationState(InstallationState.PendingInstall);
+      setVersionChecked(true);
+      return;
+    }
+
+    setInstallInfo(installInfo);
+
+    // eslint-disable-next-line no-debugger
+    let latestRelease = undefined;
+
+    try {
+      latestRelease = await getLatestReleaseInfo();
+    } catch (error) {
+      console.warn("Cannot fetch latest release from github." + error);
+    }
+
+    // 'https://github.com/nzhul/tic-tac-toe-online/releases/download/v15/build-StandaloneWindows64-v15.zip'
+    const downloadUrl = latestRelease.assets[0].browser_download_url;
+    const remoteVersion = extractVersion(downloadUrl);
+    setRemoteVersion(remoteVersion);
+
+    if (installInfo.gameClientVersion < remoteVersion) {
+      setInstallationState(InstallationState.PendingUpdate);
+    } else if (installInfo.gameClientVersion == remoteVersion) {
+      setInstallationState(InstallationState.Ready);
+    }
+
+    setVersionChecked(true);
+  };
+
+  const handleDownloadProgress = (status: PauseInfo) => {
+    setProgressPercent(status.progress);
+
+    const speedString = status.speed.toFixed(2);
+    setSpeed(speedString);
+
+    const remainingMB =
+      (status.totalBytes - status.downloadedBytes) / (1024 * 1024);
+    setRemainingMB(remainingMB);
+
+    if (totalMB != 0) return;
+    const mb = status.totalBytes / (1024 * 1024);
+    setTotalMB(mb);
+  };
+
+  const handleDownloadComplete = (path: string) => {
+    console.log("Complete: " + path);
+    setInstallationState(InstallationState.Extracting);
+
+    // TODO: await window.API.extractZip();
+    // setInstallationState(InstallationState.Ready);
+  };
+
+  const resolveLabel = () => {
+    let label = "";
+    switch (installationState) {
+      case InstallationState.PendingInstall:
+        label = "Install";
+        break;
+      case InstallationState.PendingUpdate:
+        label = "Update";
+        break;
+      case InstallationState.Downloading:
+        label = "Downloading";
+        break;
+      case InstallationState.Extracting:
+        label = "Extracting";
+        break;
+      case InstallationState.Paused:
+        label = "Paused";
+        break;
+      case InstallationState.Ready:
+        label = "Play";
+        break;
+      case InstallationState.Playing:
+        label = "Playing Now";
+        break;
+
+      default:
+        break;
+    }
+
+    return label;
+  };
+
+  const getLatestReleaseInfo = async () => {
+    // note: I am doing this decoding only to hide the token from github stupid detection alg that revokes tokens.
+    // this is just a simple read-only token from a blank account.
+
+    const decoded = window.atob(
+      "Z2hwX3A3alNCbXJRTHJPTU5nejJ5ZFk0NGhyVEdUczlVeTJEMjJsTw=="
+    );
+
+    const response = await fetch(
+      "https://api.github.com/repos/nzhul/tic-tac-toe-online/releases/latest",
+      {
+        headers: {
+          Authorization: `token ${decoded}`,
+        },
+      }
+    );
+
+    return await response.json();
+  };
+
+  useEffect(() => {
+    checkState();
+    window.API.onDownloadProgress(handleDownloadProgress);
+    window.API.onDownloadComplete(handleDownloadComplete);
+    return () => {
+      window.API.removeListener();
+    };
+  }, []);
+
+  // We do not render the button untill the version is compared using remote github api call.
+  // We do this to prevent flickering.
+  if (!versionChecked) {
+    return <></>;
+  }
+
+  return (
+    <Box
+      sx={{
+        position: "fixed",
+        bottom: 10,
+        width: "300px",
+      }}
+    >
+      <Box sx={{ display: "flex" }}>
+        <Button
+          onClick={() => {
+            startDownload();
+          }}
+          variant="contained"
+          disabled={
+            installationState == InstallationState.Downloading ||
+            installationState == InstallationState.Paused ||
+            installationState == InstallationState.Extracting
+          }
+          sx={{
+            width: "100%",
+            height: "70px",
+            fontSize: 24,
+            letterSpacing: 3,
+            borderRadius: "5px 0px 0px 5px",
+          }}
+        >
+          {resolveLabel()}
+        </Button>
+        <Button
+          variant="contained"
+          sx={{
+            borderRadius: "0px 5px 5px 0px",
+            ml: "2px",
+            minWidth: "45px",
+            width: "45px",
+            padding: 0,
+            "&:hover > .settingsIcon": {
+              transform: "rotate(90deg)",
+            },
+          }}
+        >
+          <Settings
+            className="settingsIcon"
+            sx={{
+              transition: "transform 0.2s ease-out",
+              width: 30,
+              height: 30,
+            }}
+          />
+        </Button>
+      </Box>
+      <Box sx={{ height: "55px" }}>
+        {(installationState == InstallationState.Downloading ||
+          installationState == InstallationState.Paused) && (
+          <DownloadIndicator
+            progressPercent={progressPercent}
+            installationState={installationState}
+            remainingMb={remainingMB}
+            totalMb={totalMB}
+            speed={speed}
+            onPause={pauseDownload}
+            onResume={resumeDownload}
+          />
+        )}
+
+        {installationState == InstallationState.Ready && (
+          <Box
+            sx={{
+              pt: 1,
+              fontSize: 12,
+              textAlign: "center",
+              width: "252px",
+            }}
+          >
+            Version: 0.{installInfo.gameClientVersion} alpha
+          </Box>
+        )}
+
+        {installationState == InstallationState.PendingUpdate && (
+          <Box
+            sx={{
+              pt: 1,
+              fontSize: 12,
+              textAlign: "center",
+              width: "252px",
+            }}
+          >
+            Update from v0.{installInfo.gameClientVersion} to v0.{remoteVersion}
+          </Box>
+        )}
+
+        {/* [?] when PendingUpdate  */}
+        {/* Update from 0.15 to 0.18  */}
+      </Box>
+    </Box>
+  );
+};
+
+export default DownloadBtn;

@@ -1,4 +1,4 @@
-export interface DownloadState {
+export interface PauseInfo {
   downloadedBytes: number;
   progress: number;
   totalBytes: number;
