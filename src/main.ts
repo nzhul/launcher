@@ -5,6 +5,7 @@ import fs from "fs";
 import path from "path";
 import fetch from "node-fetch";
 import yauzl from "yauzl";
+import { spawn } from "child_process";
 import { PauseInfo } from "./models/PauseInfo";
 import { Octokit } from "octokit";
 import { InstallInfo } from "./models/InstallInfo";
@@ -324,3 +325,19 @@ ipcMain.handle(
     });
   }
 );
+
+// --- Game Session ---
+ipcMain.on("start-game", (event) => {
+  // C:\Downloads\AncientWarriors\StandaloneWindows64.exe
+  const exePath = "C:\\Downloads\\AncientWarriors\\StandaloneWindows64.exe";
+  const process = spawn(exePath);
+
+  process.on("exit", (code) => {
+    console.log(`Child process exited with code ${code}`);
+    event.sender.send("on-quit-game", code);
+  });
+
+  process.on("error", (err) => {
+    console.error("Failed to start child process: ", err);
+  });
+});

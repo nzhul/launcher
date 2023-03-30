@@ -48,4 +48,12 @@ contextBridge.exposeInMainWorld("API", {
       listener(currentFile);
     });
   },
+  startGame: async () => {
+    ipcRenderer.send("start-game");
+  },
+  onQuitGame: (listener: (code: number) => void) => {
+    ipcRenderer.on("on-quit-game", (event, code) => {
+      listener(code);
+    });
+  },
 });

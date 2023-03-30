@@ -18,6 +18,8 @@ declare global {
       removeListener: () => void;
       extractFile: (path: string) => Promise<string>;
       onExtractProgress: (listener: (currentFile: string) => void) => void;
+      startGame: () => void;
+      onQuitGame: (listener: (code: number) => void) => void;
     };
   }
 }

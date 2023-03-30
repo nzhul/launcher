@@ -21,6 +21,22 @@ const DownloadBtn = () => {
   );
   const [extractCurrentFile, setExtractCurrentFile] = useState<string>("");
 
+  const handleBigButtonClick = async () => {
+    if (installationState == InstallationState.Ready) {
+      // start game process
+      console.log("Starting Child Process!");
+      window.API.startGame();
+      setInstallationState(InstallationState.Playing);
+    }
+
+    if (
+      installationState == InstallationState.PendingInstall ||
+      installationState == InstallationState.PendingUpdate
+    ) {
+      startDownload();
+    }
+  };
+
   const startDownload = async (resume?: boolean) => {
     try {
       console.log("Download Start");
@@ -134,6 +150,13 @@ const DownloadBtn = () => {
     setExtractCurrentFile("./" + currentFile);
   };
 
+  const handleGameQuit = (code: number) => {
+    console.log("Code: " + code);
+    setInstallationState(InstallationState.Ready);
+  };
+
+  // --- privates ---
+
   const resolveLabel = () => {
     let label = "";
     switch (installationState) {
@@ -191,6 +214,7 @@ const DownloadBtn = () => {
     window.API.onDownloadProgress(handleDownloadProgress);
     window.API.onDownloadComplete(handleDownloadComplete);
     window.API.onExtractProgress(handleExtractProgress);
+    window.API.onQuitGame(handleGameQuit);
     return () => {
       window.API.removeListener();
     };
@@ -212,14 +236,13 @@ const DownloadBtn = () => {
     >
       <Box sx={{ display: "flex" }}>
         <Button
-          onClick={() => {
-            startDownload();
-          }}
+          onClick={handleBigButtonClick}
           variant="contained"
           disabled={
             installationState == InstallationState.Downloading ||
             installationState == InstallationState.Paused ||
-            installationState == InstallationState.Extracting
+            installationState == InstallationState.Extracting ||
+            installationState == InstallationState.Playing
           }
           sx={{
             width: "100%",
