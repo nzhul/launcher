@@ -19,6 +19,7 @@ const DownloadBtn = () => {
   const [installationState, setInstallationState] = useState<InstallationState>(
     InstallationState.PendingInstall
   );
+  const [extractCurrentFile, setExtractCurrentFile] = useState<string>("");
 
   const startDownload = async (resume?: boolean) => {
     try {
@@ -111,12 +112,26 @@ const DownloadBtn = () => {
     setTotalMB(mb);
   };
 
-  const handleDownloadComplete = (path: string) => {
-    console.log("Complete: " + path);
+  const handleDownloadComplete = async (path: string) => {
+    console.log("Download Complete: " + path);
     setInstallationState(InstallationState.Extracting);
 
-    // TODO: await window.API.extractZip();
-    // setInstallationState(InstallationState.Ready);
+    console.log("Extracting Start");
+    await window.API.extractFile(path);
+    console.log("Extracting complete");
+
+    const version = extractVersion(path);
+
+    setInstallInfo({
+      gameClientVersion: version,
+      installDirectory: path,
+    });
+
+    setInstallationState(InstallationState.Ready);
+  };
+
+  const handleExtractProgress = (currentFile: string) => {
+    setExtractCurrentFile("./" + currentFile);
   };
 
   const resolveLabel = () => {
@@ -175,6 +190,7 @@ const DownloadBtn = () => {
     checkState();
     window.API.onDownloadProgress(handleDownloadProgress);
     window.API.onDownloadComplete(handleDownloadComplete);
+    window.API.onExtractProgress(handleExtractProgress);
     return () => {
       window.API.removeListener();
     };
@@ -252,7 +268,7 @@ const DownloadBtn = () => {
           />
         )}
 
-        {installationState == InstallationState.Ready && (
+        {installationState == InstallationState.Ready && installInfo && (
           <Box
             sx={{
               pt: 1,
@@ -278,8 +294,21 @@ const DownloadBtn = () => {
           </Box>
         )}
 
-        {/* [?] when PendingUpdate  */}
-        {/* Update from 0.15 to 0.18  */}
+        {installationState == InstallationState.Extracting && (
+          <Box
+            sx={{
+              pt: 1,
+              fontSize: 12,
+              textAlign: "left",
+            }}
+          >
+            <span style={{ fontStyle: "italic" }}>
+              {extractCurrentFile.length > 47
+                ? extractCurrentFile.substring(0, 47) + "..."
+                : extractCurrentFile}
+            </span>
+          </Box>
+        )}
       </Box>
     </Box>
   );

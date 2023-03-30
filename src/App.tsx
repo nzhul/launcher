@@ -1,7 +1,6 @@
 import { ThemeProvider } from "@mui/material";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
-import React from "react";
 import * as ReactDOM from "react-dom/client";
 import ChatList from "./renderer/chat/ChatList";
 import DownloadBtn from "./renderer/features/download/DownloadBtn";

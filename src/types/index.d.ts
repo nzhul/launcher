@@ -16,6 +16,8 @@ declare global {
       onDownloadProgress: (listener: (status: PauseInfo) => void) => void;
       onDownloadComplete: (listener: (downloadPath: string) => void) => void;
       removeListener: () => void;
+      extractFile: (path: string) => Promise<string>;
+      onExtractProgress: (listener: (currentFile: string) => void) => void;
     };
   }
 }

@@ -38,5 +38,14 @@ contextBridge.exposeInMainWorld("API", {
   removeListener: () => {
     ipcRenderer.removeAllListeners("download-progress");
     ipcRenderer.removeAllListeners("download-complete");
+    ipcRenderer.removeAllListeners("extract-progress");
+  },
+  extractFile: async (path: string) => {
+    return await ipcRenderer.invoke("extract-file", path);
+  },
+  onExtractProgress: (listener: (currentFile: string) => void) => {
+    ipcRenderer.on("extract-progress", (event, currentFile) => {
+      listener(currentFile);
+    });
   },
 });

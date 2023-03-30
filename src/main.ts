@@ -4,6 +4,7 @@ import { app, BrowserWindow, ipcMain } from "electron";
 import fs from "fs";
 import path from "path";
 import fetch from "node-fetch";
+import yauzl from "yauzl";
 import { PauseInfo } from "./models/PauseInfo";
 import { Octokit } from "octokit";
 import { InstallInfo } from "./models/InstallInfo";
@@ -152,7 +153,12 @@ ipcMain.handle(
   "download-file",
   async (event, url: string, resume?: boolean) => {
     const fileName = path.basename(url);
-    const fullFilePath = path.join(installDirectory, fileName);
+    const gameDirectory = path.join(installDirectory, "AncientWarriors");
+    const fullFilePath = path.join(gameDirectory, fileName);
+
+    if (!fs.existsSync(gameDirectory)) {
+      fs.mkdirSync(gameDirectory);
+    }
 
     controller = new AbortController();
     const startTime = Date.now();
@@ -268,7 +274,53 @@ ipcMain.on("download-pause", () => {
   }
 });
 
-// ---- private ----
-// function extractVersion(fileName: string): number {
-//   return parseInt(fileName.match(/-v(\d+)\.zip$/)[1]);
-// }
+// ---- Extracting ----
+ipcMain.handle(
+  "extract-file",
+  async (event: Electron.IpcMainInvokeEvent, zipFilePath: string) => {
+    return new Promise((resolve, reject) => {
+      const extractPath = path.dirname(zipFilePath);
+
+      yauzl.open(zipFilePath, { lazyEntries: true }, (err, zipFile) => {
+        if (err) reject(err);
+
+        zipFile.readEntry();
+        zipFile.on("entry", (entry) => {
+          const outputFilePath = path.join(extractPath, entry.fileName);
+
+          if (entry.fileName.endsWith("/") || entry.fileName.endsWith("\\")) {
+            if (!fs.existsSync(outputFilePath)) {
+              fs.mkdirSync(outputFilePath, { recursive: true });
+            }
+
+            zipFile.readEntry();
+            return;
+          }
+
+          event.sender.send("extract-progress", entry.fileName);
+
+          // extrac the file
+          zipFile.openReadStream(entry, (err, readStream) => {
+            if (err) {
+              reject(err);
+            }
+
+            const writeStream = fs.createWriteStream(outputFilePath);
+
+            readStream.on("end", () => {
+              zipFile.readEntry();
+            });
+
+            readStream.pipe(writeStream);
+          });
+        });
+
+        zipFile.on("close", () => {
+          console.log(`Extraction complete.}`);
+          fs.unlinkSync(zipFilePath);
+          resolve("Extraction complete");
+        });
+      });
+    });
+  }
+);

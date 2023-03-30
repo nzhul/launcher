@@ -45,11 +45,13 @@
     "@emotion/styled": "^11.10.6",
     "@mui/icons-material": "^5.11.11",
     "@mui/material": "^5.11.12",
+    "@types/yauzl": "^2.10.0",
     "electron-squirrel-startup": "^1.0.0",
     "node-fetch": "^3.3.0",
     "octokit": "^2.0.14",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "typeface-roboto": "^1.1.13"
+    "typeface-roboto": "^1.1.13",
+    "yauzl": "^2.10.0"
   }
 }
