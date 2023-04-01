@@ -6,4 +6,5 @@ export enum InstallationState {
   Paused,
   Ready,
   Playing,
+  Uninstalling,
 }

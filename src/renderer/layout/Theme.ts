@@ -2,6 +2,7 @@ import { createTheme } from "@mui/material";
 
 // colors
 const PRIMARY_COLOR = "#3BA55C";
+const PRIMARY_TEXT_COLOR = "#FFFFFF";
 const SECONDARY_COLOR = "#FFE700";
 const INFO_COLOR = "#90A0AC";
 const ERROR_COLOR = "#ff285a";
@@ -9,6 +10,27 @@ const ERROR_COLOR = "#ff285a";
 const initializeTheme = () => {
   return createTheme({
     components: {
+      MuiMenu: {
+        styleOverrides: {
+          paper: {
+            backgroundColor: "#3A3A3A",
+            backgroundImage: "none",
+            border: "1px solid #5E5E5E",
+            padding: "0px 8px 0 8px",
+            borderRadius: 0,
+          },
+        },
+      },
+      MuiMenuItem: {
+        styleOverrides: {
+          root: {
+            color: "rgba(255,255,255,0.8)",
+            "&:hover": {
+              backgroundColor: "rgba(255,255,255,0.05)",
+            },
+          },
+        },
+      },
       MuiButton: {
         styleOverrides: {
           root: ({ ownerState }) => {
@@ -102,6 +124,7 @@ const initializeTheme = () => {
       },
     },
     palette: {
+      mode: "dark",
       primary: {
         main: "#359adc",
         dark: "#035d88",
@@ -110,7 +133,7 @@ const initializeTheme = () => {
         main: SECONDARY_COLOR,
       },
       text: {
-        primary: PRIMARY_COLOR,
+        primary: PRIMARY_TEXT_COLOR,
       },
     },
     typography: {

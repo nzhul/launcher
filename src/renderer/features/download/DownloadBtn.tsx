@@ -7,6 +7,7 @@ import { InstallationState } from "../../../models/InstallationState";
 import { extractVersion } from "../../../common/utils";
 import { InstallInfo } from "../../../models/InstallInfo";
 import DownloadIndicator from "./DownloadIndicator";
+import GameSettingsBtn from "./GameSettingsBtn";
 
 const DownloadBtn = () => {
   const [progressPercent, setProgressPercent] = useState<number>(0);
@@ -155,6 +156,11 @@ const DownloadBtn = () => {
     setInstallationState(InstallationState.Ready);
   };
 
+  const handleUninstall = () => {
+    console.log("Uninstalling ...");
+    setInstallationState(InstallationState.Uninstalling);
+  };
+
   // --- privates ---
 
   const resolveLabel = () => {
@@ -180,6 +186,9 @@ const DownloadBtn = () => {
         break;
       case InstallationState.Playing:
         label = "Playing Now";
+        break;
+      case InstallationState.Uninstalling:
+        label = "Uninstalling";
         break;
 
       default:
@@ -242,7 +251,8 @@ const DownloadBtn = () => {
             installationState == InstallationState.Downloading ||
             installationState == InstallationState.Paused ||
             installationState == InstallationState.Extracting ||
-            installationState == InstallationState.Playing
+            installationState == InstallationState.Playing ||
+            installationState == InstallationState.Uninstalling
           }
           sx={{
             width: "100%",
@@ -254,28 +264,7 @@ const DownloadBtn = () => {
         >
           {resolveLabel()}
         </Button>
-        <Button
-          variant="contained"
-          sx={{
-            borderRadius: "0px 5px 5px 0px",
-            ml: "2px",
-            minWidth: "45px",
-            width: "45px",
-            padding: 0,
-            "&:hover > .settingsIcon": {
-              transform: "rotate(90deg)",
-            },
-          }}
-        >
-          <Settings
-            className="settingsIcon"
-            sx={{
-              transition: "transform 0.2s ease-out",
-              width: 30,
-              height: 30,
-            }}
-          />
-        </Button>
+        <GameSettingsBtn onUninstallConfirm={handleUninstall} />
       </Box>
       <Box sx={{ height: "55px" }}>
         {(installationState == InstallationState.Downloading ||
