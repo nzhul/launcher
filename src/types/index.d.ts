@@ -22,6 +22,12 @@ declare global {
       onQuitGame: (listener: (code: number) => void) => void;
       uninstallGame: () => Promise<void>;
       onUninstallProgress: (listener: (currentFile: string) => void) => void;
+
+      // -- Tray icons
+      closeApp: () => void;
+      maximizeApp: () => void;
+      unmaximizeApp: () => void;
+      minimizeApp: () => void;
     };
   }
 }

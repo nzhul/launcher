@@ -65,4 +65,18 @@ contextBridge.exposeInMainWorld("API", {
       listener(currentFile);
     });
   },
+
+  // --- Tray icons
+  closeApp: async () => {
+    ipcRenderer.send("close-app");
+  },
+  maximizeApp: async () => {
+    ipcRenderer.send("maximize-app");
+  },
+  unmaximizeApp: async () => {
+    ipcRenderer.send("unmaximize-app");
+  },
+  minimizeApp: async () => {
+    ipcRenderer.send("minimize-app");
+  },
 });

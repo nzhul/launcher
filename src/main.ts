@@ -17,12 +17,14 @@ import { extractVersion } from "./common/utils";
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
+let mainWindow: BrowserWindow;
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
   app.quit();
 }
 
-const createWindow = (): void => {
+const createWindow = (): BrowserWindow => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     height: 832,
@@ -32,6 +34,7 @@ const createWindow = (): void => {
     minHeight: 640,
     frame: false,
     webPreferences: {
+      devTools: process.env.NODE_ENV === "development" ? true : false,
       nodeIntegration: false,
       contextIsolation: true,
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
@@ -42,7 +45,11 @@ const createWindow = (): void => {
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  if (process.env.NODE_ENV === "development") {
+    mainWindow.webContents.openDevTools();
+  }
+
+  return mainWindow;
 };
 
 const getRepoInfo = async () => {
@@ -76,7 +83,7 @@ const getRepoInfo = async () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on("ready", () => {
-  createWindow();
+  mainWindow = createWindow();
   // getRepoInfo();
 });
 
@@ -357,8 +364,6 @@ ipcMain.handle("uninstall-game", async (event: Electron.IpcMainInvokeEvent) => {
   });
 });
 
-// ---- privates
-
 const deleteFolderRecursive = function (
   directoryPath: string,
   event: Electron.IpcMainInvokeEvent
@@ -392,3 +397,23 @@ const deleteInstallState = () => {
     fs.unlinkSync(installFile);
   }
 };
+
+// ---- Tray icons
+ipcMain.on("close-app", (event) => {
+  const windows = BrowserWindow.getAllWindows();
+  windows.forEach((window) => {
+    window.close();
+  });
+});
+
+ipcMain.on("maximize-app", (event) => {
+  mainWindow.maximize();
+});
+
+ipcMain.on("unmaximize-app", (event) => {
+  mainWindow.unmaximize();
+});
+
+ipcMain.on("minimize-app", (event) => {
+  mainWindow.minimize();
+});

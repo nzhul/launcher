@@ -1,13 +1,17 @@
 import HorizontalRule from "@mui/icons-material/HorizontalRule";
 import Close from "@mui/icons-material/Close";
 import CropSquare from "@mui/icons-material/CropSquare";
+import FilterNone from "@mui/icons-material/FilterNone";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
+import { useState } from "react";
 
 const NavBar = () => {
+  const [maximized, setMaximized] = useState<boolean>(false);
+
   // #dd1313 - red color, can be used for [ X ] background color.
   const systemButtonStyles = {
     WebkitAppRegion: "no-drag",
@@ -46,13 +50,38 @@ const NavBar = () => {
           >
             Ancient Warriors
           </Typography>
-          <Button sx={systemButtonStyles}>
+          <Button
+            onClick={() => {
+              window.API.minimizeApp();
+            }}
+            sx={systemButtonStyles}
+          >
             <HorizontalRule sx={{ width: "20px" }} />
           </Button>
-          <Button sx={systemButtonStyles}>
-            <CropSquare sx={{ width: "20px" }} />
+          <Button
+            onClick={() => {
+              if (maximized) {
+                window.API.unmaximizeApp();
+                setMaximized(false);
+              } else {
+                window.API.maximizeApp();
+                setMaximized(true);
+              }
+            }}
+            sx={systemButtonStyles}
+          >
+            {maximized ? (
+              <FilterNone sx={{ width: "20px" }} />
+            ) : (
+              <CropSquare sx={{ width: "20px" }} />
+            )}
           </Button>
-          <Button sx={systemButtonStyles}>
+          <Button
+            onClick={() => {
+              window.API.closeApp();
+            }}
+            sx={systemButtonStyles}
+          >
             <Close sx={{ width: "20px" }} />
           </Button>
         </Toolbar>
