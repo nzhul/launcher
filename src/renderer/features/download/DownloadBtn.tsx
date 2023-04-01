@@ -272,6 +272,7 @@ const DownloadBtn = () => {
         >
           {resolveLabel()}
         </Button>
+        {/* TODO: Make GameSettingsBtn visible only when game is installed */}
         <GameSettingsBtn onUninstallConfirm={handleUninstall} />
       </Box>
       <Box sx={{ height: "55px" }}>

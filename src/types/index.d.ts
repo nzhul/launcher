@@ -28,6 +28,8 @@ declare global {
       maximizeApp: () => void;
       unmaximizeApp: () => void;
       minimizeApp: () => void;
+      // ---
+      revealInExplorer: () => void;
     };
   }
 }

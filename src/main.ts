@@ -1,6 +1,6 @@
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain, shell } from "electron";
 import fs from "fs";
 import path from "path";
 import fetch from "node-fetch";
@@ -156,6 +156,7 @@ let downloadedBytes = 0;
 let total = 0;
 const pauseFile = path.join(app.getPath("userData"), "pause-info.json"); // path to file for storing paused download data
 const installInfoFile = path.join(app.getPath("userData"), "install-info.json");
+const gameFileName = "StandaloneWindows64.exe";
 
 ipcMain.handle(
   "download-file",
@@ -245,7 +246,7 @@ ipcMain.handle(
       }
 
       const installInfo: InstallInfo = {
-        installDirectory: installDirectory,
+        installDirectory: gameDirectory,
         gameClientVersion: extractVersion(fileName),
       };
 
@@ -337,7 +338,7 @@ ipcMain.handle(
 // --- Game Session ---
 ipcMain.on("start-game", (event) => {
   // C:\Downloads\AncientWarriors\StandaloneWindows64.exe
-  const exePath = "C:\\Downloads\\AncientWarriors\\StandaloneWindows64.exe";
+  const exePath = "C:\\Downloads\\AncientWarriors\\" + gameFileName;
   const process = spawn(exePath);
 
   process.on("exit", (code) => {
@@ -353,9 +354,9 @@ ipcMain.on("start-game", (event) => {
 // --- Uninstall ---
 ipcMain.handle("uninstall-game", async (event: Electron.IpcMainInvokeEvent) => {
   return new Promise((resolve, reject) => {
-    const folderPath = "C:\\Downloads\\AncientWarriors";
+    const installInfo = loadInstallInfo();
     try {
-      deleteFolderRecursive(folderPath, event);
+      deleteFolderRecursive(installInfo.installDirectory, event);
       deleteInstallState();
       resolve("deleted");
     } catch (error) {
@@ -399,21 +400,41 @@ const deleteInstallState = () => {
 };
 
 // ---- Tray icons
-ipcMain.on("close-app", (event) => {
+ipcMain.on("close-app", () => {
   const windows = BrowserWindow.getAllWindows();
   windows.forEach((window) => {
     window.close();
   });
 });
 
-ipcMain.on("maximize-app", (event) => {
+ipcMain.on("maximize-app", () => {
   mainWindow.maximize();
 });
 
-ipcMain.on("unmaximize-app", (event) => {
+ipcMain.on("unmaximize-app", () => {
   mainWindow.unmaximize();
 });
 
-ipcMain.on("minimize-app", (event) => {
+ipcMain.on("minimize-app", () => {
   mainWindow.minimize();
 });
+
+ipcMain.on("reveal-in-explorer", () => {
+  const installInfo = loadInstallInfo();
+  shell.showItemInFolder(installInfo.installDirectory + "\\" + gameFileName); // TODO: this backslash might not work on macOs or linux
+});
+
+// --- main.ts common
+
+const loadInstallInfo = (): InstallInfo | undefined => {
+  let installInfo: InstallInfo | undefined;
+
+  if (!fs.existsSync(installInfoFile)) {
+    installInfo = undefined;
+  } else {
+    const installInfoString = fs.readFileSync(installInfoFile, "utf-8");
+    installInfo = JSON.parse(installInfoString);
+  }
+
+  return installInfo;
+};

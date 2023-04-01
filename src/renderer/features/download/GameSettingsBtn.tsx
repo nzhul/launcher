@@ -75,7 +75,14 @@ const GameSettingsBtn: React.FC<{ onUninstallConfirm: () => void }> = ({
         sx={{ mt: -10, ml: -1 }}
       >
         <MenuItem onClick={handleGameSettingsBtnClick}>Game Settings</MenuItem>
-        <MenuItem>Reveal in Explorer</MenuItem>
+        <MenuItem
+          onClick={() => {
+            setAnchorEl(null);
+            window.API.revealInExplorer();
+          }}
+        >
+          Reveal in Explorer
+        </MenuItem>
         <MenuItem>Check for Updates</MenuItem>
         <MenuItem onClick={handleUninstallBtnClick}>Uninstall</MenuItem>
       </Menu>

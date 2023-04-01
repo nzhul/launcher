@@ -79,4 +79,7 @@ contextBridge.exposeInMainWorld("API", {
   minimizeApp: async () => {
     ipcRenderer.send("minimize-app");
   },
+  revealInExplorer: async () => {
+    ipcRenderer.send("reveal-in-explorer");
+  },
 });
