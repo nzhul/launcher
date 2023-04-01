@@ -298,7 +298,8 @@ ipcMain.handle(
             return;
           }
 
-          event.sender.send("extract-progress", entry.fileName);
+          const file = path.basename(entry.fileName);
+          event.sender.send("extract-progress", file);
 
           // extrac the file
           zipFile.openReadStream(entry, (err, readStream) => {
@@ -341,3 +342,53 @@ ipcMain.on("start-game", (event) => {
     console.error("Failed to start child process: ", err);
   });
 });
+
+// --- Uninstall ---
+ipcMain.handle("uninstall-game", async (event: Electron.IpcMainInvokeEvent) => {
+  return new Promise((resolve, reject) => {
+    const folderPath = "C:\\Downloads\\AncientWarriors";
+    try {
+      deleteFolderRecursive(folderPath, event);
+      deleteInstallState();
+      resolve("deleted");
+    } catch (error) {
+      reject(error);
+    }
+  });
+});
+
+// ---- privates
+
+const deleteFolderRecursive = function (
+  directoryPath: string,
+  event: Electron.IpcMainInvokeEvent
+) {
+  if (fs.existsSync(directoryPath)) {
+    fs.readdirSync(directoryPath).forEach((file, index) => {
+      const curPath = path.join(directoryPath, file);
+      if (fs.lstatSync(curPath).isDirectory()) {
+        // recurse
+        deleteFolderRecursive(curPath, event);
+      } else {
+        // delete file
+        const fileName = path.basename(curPath);
+        event.sender.send("uninstall-progress", fileName);
+        fs.unlinkSync(curPath);
+      }
+    });
+    fs.rmdirSync(directoryPath);
+  }
+};
+
+const deleteInstallState = () => {
+  const pauseFile = path.join(app.getPath("userData"), "pause-info.json");
+  const installFile = path.join(app.getPath("userData"), "install-info.json");
+
+  if (fs.existsSync(pauseFile)) {
+    fs.unlinkSync(pauseFile);
+  }
+
+  if (fs.existsSync(installFile)) {
+    fs.unlinkSync(installFile);
+  }
+};

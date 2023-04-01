@@ -39,6 +39,7 @@ contextBridge.exposeInMainWorld("API", {
     ipcRenderer.removeAllListeners("download-progress");
     ipcRenderer.removeAllListeners("download-complete");
     ipcRenderer.removeAllListeners("extract-progress");
+    ipcRenderer.removeAllListeners("uninstall-progress");
   },
   extractFile: async (path: string) => {
     return await ipcRenderer.invoke("extract-file", path);
@@ -54,6 +55,14 @@ contextBridge.exposeInMainWorld("API", {
   onQuitGame: (listener: (code: number) => void) => {
     ipcRenderer.on("on-quit-game", (event, code) => {
       listener(code);
+    });
+  },
+  uninstallGame: async () => {
+    return await ipcRenderer.invoke("uninstall-game");
+  },
+  onUninstallProgress: (listener: (currentFile: string) => void) => {
+    ipcRenderer.on("uninstall-progress", (event, currentFile) => {
+      listener(currentFile);
     });
   },
 });

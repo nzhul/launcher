@@ -2,7 +2,6 @@ import Button from "@mui/material/Button";
 import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import { PauseInfo } from "../../../models/PauseInfo";
-import Settings from "@mui/icons-material/Settings";
 import { InstallationState } from "../../../models/InstallationState";
 import { extractVersion } from "../../../common/utils";
 import { InstallInfo } from "../../../models/InstallInfo";
@@ -21,6 +20,7 @@ const DownloadBtn = () => {
     InstallationState.PendingInstall
   );
   const [extractCurrentFile, setExtractCurrentFile] = useState<string>("");
+  const [uninstallCurrentFile, setUninstallCurrentFile] = useState<string>("");
 
   const handleBigButtonClick = async () => {
     if (installationState == InstallationState.Ready) {
@@ -156,9 +156,16 @@ const DownloadBtn = () => {
     setInstallationState(InstallationState.Ready);
   };
 
-  const handleUninstall = () => {
+  const handleUninstall = async () => {
     console.log("Uninstalling ...");
     setInstallationState(InstallationState.Uninstalling);
+    await window.API.uninstallGame();
+    setInstallationState(InstallationState.PendingInstall);
+    console.log("Uninstall complete!");
+  };
+
+  const handleUninstallProgress = (currentFile: string) => {
+    setUninstallCurrentFile("./" + currentFile);
   };
 
   // --- privates ---
@@ -224,6 +231,7 @@ const DownloadBtn = () => {
     window.API.onDownloadComplete(handleDownloadComplete);
     window.API.onExtractProgress(handleExtractProgress);
     window.API.onQuitGame(handleGameQuit);
+    window.API.onUninstallProgress(handleUninstallProgress);
     return () => {
       window.API.removeListener();
     };
@@ -318,6 +326,21 @@ const DownloadBtn = () => {
               {extractCurrentFile.length > 47
                 ? extractCurrentFile.substring(0, 47) + "..."
                 : extractCurrentFile}
+            </span>
+          </Box>
+        )}
+        {installationState == InstallationState.Uninstalling && (
+          <Box
+            sx={{
+              pt: 1,
+              fontSize: 12,
+              textAlign: "left",
+            }}
+          >
+            <span style={{ fontStyle: "italic" }}>
+              {uninstallCurrentFile.length > 47
+                ? uninstallCurrentFile.substring(0, 47) + "..."
+                : uninstallCurrentFile}
             </span>
           </Box>
         )}

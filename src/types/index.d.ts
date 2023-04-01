@@ -20,6 +20,8 @@ declare global {
       onExtractProgress: (listener: (currentFile: string) => void) => void;
       startGame: () => void;
       onQuitGame: (listener: (code: number) => void) => void;
+      uninstallGame: () => Promise<void>;
+      onUninstallProgress: (listener: (currentFile: string) => void) => void;
     };
   }
 }
