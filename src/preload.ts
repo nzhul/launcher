@@ -57,14 +57,6 @@ contextBridge.exposeInMainWorld("API", {
       listener(code);
     });
   },
-  uninstallGame: async () => {
-    return await ipcRenderer.invoke("uninstall-game");
-  },
-  onUninstallProgress: (listener: (currentFile: string) => void) => {
-    ipcRenderer.on("uninstall-progress", (event, currentFile) => {
-      listener(currentFile);
-    });
-  },
 
   // --- Tray icons
   closeApp: async () => {
@@ -79,7 +71,25 @@ contextBridge.exposeInMainWorld("API", {
   minimizeApp: async () => {
     ipcRenderer.send("minimize-app");
   },
+
+  // --- Game Settings Menu
+  uninstallGame: async () => {
+    return await ipcRenderer.invoke("uninstall-game");
+  },
+  onUninstallProgress: (listener: (currentFile: string) => void) => {
+    ipcRenderer.on("uninstall-progress", (event, currentFile) => {
+      listener(currentFile);
+    });
+  },
   revealInExplorer: async () => {
     ipcRenderer.send("reveal-in-explorer");
+  },
+
+  // --- Install Dialog
+  selectDirectory: async () => {
+    return await ipcRenderer.invoke("select-directory");
+  },
+  getDefaultDirectory: async () => {
+    return await ipcRenderer.invoke("get-default-directory");
   },
 });

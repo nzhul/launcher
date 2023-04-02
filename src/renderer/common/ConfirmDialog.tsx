@@ -14,7 +14,7 @@ const ConfirmDialog: React.FC<{
   description?: string;
 }> = ({ open, onClose, onConfirm, title, description }) => {
   return (
-    <Dialog fullWidth open={open} onClose={onClose}>
+    <Dialog open={open} onClose={onClose}>
       <DialogTitle id="alert-dialog-title">{title}</DialogTitle>
       <DialogContent>{description}</DialogContent>
       <DialogActions sx={{ pr: 2, pb: 2 }}>

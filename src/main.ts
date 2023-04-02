@@ -1,6 +1,6 @@
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 
-import { app, BrowserWindow, ipcMain, shell } from "electron";
+import { app, BrowserWindow, dialog, ipcMain, shell } from "electron";
 import fs from "fs";
 import path from "path";
 import fetch from "node-fetch";
@@ -149,20 +149,30 @@ ipcMain.handle("get-state", async (_) => {
   };
 });
 
-const installDirectory = "C:\\Downloads\\";
+// const installDirectory = "C:\\Downloads\\";
 
 let controller: AbortController | undefined;
 let downloadedBytes = 0;
 let total = 0;
 const pauseFile = path.join(app.getPath("userData"), "pause-info.json"); // path to file for storing paused download data
-const installInfoFile = path.join(app.getPath("userData"), "install-info.json");
+const installInfoFilePath = path.join(
+  app.getPath("userData"),
+  "install-info.json"
+);
+const gameDirectoryName = "AncientWarriors";
 const gameFileName = "StandaloneWindows64.exe";
 
 ipcMain.handle(
   "download-file",
   async (event, url: string, resume?: boolean) => {
+    const installInfo = loadInstallInfo() || {
+      installDirectory: getDefaultDirectory(),
+    };
     const fileName = path.basename(url);
-    const gameDirectory = path.join(installDirectory, "AncientWarriors");
+    const gameDirectory = path.join(
+      installInfo.installDirectory,
+      gameDirectoryName
+    );
     const fullFilePath = path.join(gameDirectory, fileName);
 
     if (!fs.existsSync(gameDirectory)) {
@@ -245,12 +255,16 @@ ipcMain.handle(
         fs.unlinkSync(pauseFile); // delete paused download data
       }
 
-      const installInfo: InstallInfo = {
-        installDirectory: gameDirectory,
+      const installInfoNew: InstallInfo = {
+        installDirectory: installInfo.installDirectory,
         gameClientVersion: extractVersion(fileName),
       };
 
-      fs.writeFileSync(installInfoFile, JSON.stringify(installInfo), "utf-8");
+      fs.writeFileSync(
+        installInfoFilePath,
+        JSON.stringify(installInfoNew),
+        "utf-8"
+      );
       event.sender.send("download-complete", fullFilePath); // TODO: Start listening for this event in the frontend!
     });
 
@@ -337,8 +351,12 @@ ipcMain.handle(
 
 // --- Game Session ---
 ipcMain.on("start-game", (event) => {
-  // C:\Downloads\AncientWarriors\StandaloneWindows64.exe
-  const exePath = "C:\\Downloads\\AncientWarriors\\" + gameFileName;
+  const installInfo = loadInstallInfo();
+  const exePath = path.join(
+    installInfo.installDirectory,
+    gameDirectoryName,
+    gameFileName
+  );
   const process = spawn(exePath);
 
   process.on("exit", (code) => {
@@ -356,7 +374,12 @@ ipcMain.handle("uninstall-game", async (event: Electron.IpcMainInvokeEvent) => {
   return new Promise((resolve, reject) => {
     const installInfo = loadInstallInfo();
     try {
-      deleteFolderRecursive(installInfo.installDirectory, event);
+      const gamePath = path.join(
+        installInfo.installDirectory,
+        gameDirectoryName
+      );
+
+      deleteFolderRecursive(gamePath, event);
       deleteInstallState();
       resolve("deleted");
     } catch (error) {
@@ -421,7 +444,39 @@ ipcMain.on("minimize-app", () => {
 
 ipcMain.on("reveal-in-explorer", () => {
   const installInfo = loadInstallInfo();
-  shell.showItemInFolder(installInfo.installDirectory + "\\" + gameFileName); // TODO: this backslash might not work on macOs or linux
+  const exePath = path.join(
+    installInfo.installDirectory,
+    gameDirectoryName,
+    gameFileName
+  );
+  shell.showItemInFolder(exePath);
+});
+
+ipcMain.handle("select-directory", async () => {
+  return new Promise((resolve, reject) => {
+    const result = dialog.showOpenDialogSync({
+      properties: ["openDirectory"],
+    });
+
+    if (result && result.length > 0) {
+      const installInfo: InstallInfo = {
+        installDirectory: result[0],
+        gameClientVersion: 0,
+      };
+
+      fs.writeFileSync(
+        installInfoFilePath,
+        JSON.stringify(installInfo),
+        "utf-8"
+      );
+    }
+
+    return resolve(result);
+  });
+});
+
+ipcMain.handle("get-default-directory", () => {
+  return getDefaultDirectory();
 });
 
 // --- main.ts common
@@ -429,12 +484,16 @@ ipcMain.on("reveal-in-explorer", () => {
 const loadInstallInfo = (): InstallInfo | undefined => {
   let installInfo: InstallInfo | undefined;
 
-  if (!fs.existsSync(installInfoFile)) {
+  if (!fs.existsSync(installInfoFilePath)) {
     installInfo = undefined;
   } else {
-    const installInfoString = fs.readFileSync(installInfoFile, "utf-8");
+    const installInfoString = fs.readFileSync(installInfoFilePath, "utf-8");
     installInfo = JSON.parse(installInfoString);
   }
 
   return installInfo;
+};
+
+const getDefaultDirectory = () => {
+  return app.getPath("home");
 };

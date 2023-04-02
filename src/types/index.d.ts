@@ -20,16 +20,21 @@ declare global {
       onExtractProgress: (listener: (currentFile: string) => void) => void;
       startGame: () => void;
       onQuitGame: (listener: (code: number) => void) => void;
-      uninstallGame: () => Promise<void>;
-      onUninstallProgress: (listener: (currentFile: string) => void) => void;
 
       // -- Tray icons
       closeApp: () => void;
       maximizeApp: () => void;
       unmaximizeApp: () => void;
       minimizeApp: () => void;
-      // ---
+
+      // --- Game Settings Menu
+      uninstallGame: () => Promise<void>;
+      onUninstallProgress: (listener: (currentFile: string) => void) => void;
       revealInExplorer: () => void;
+
+      // --- Install Dialog
+      selectDirectory: () => Promise<string | undefined>;
+      getDefaultDirectory: () => Promise<string | undefined>;
     };
   }
 }

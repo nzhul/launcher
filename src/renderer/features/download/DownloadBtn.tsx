@@ -7,6 +7,7 @@ import { extractVersion } from "../../../common/utils";
 import { InstallInfo } from "../../../models/InstallInfo";
 import DownloadIndicator from "./DownloadIndicator";
 import GameSettingsBtn from "./GameSettingsBtn";
+import InstallDialog from "./InstallDialog";
 
 const DownloadBtn = () => {
   const [progressPercent, setProgressPercent] = useState<number>(0);
@@ -21,36 +22,31 @@ const DownloadBtn = () => {
   );
   const [extractCurrentFile, setExtractCurrentFile] = useState<string>("");
   const [uninstallCurrentFile, setUninstallCurrentFile] = useState<string>("");
+  const [installDialogOpened, setInstallDialogOpened] =
+    useState<boolean>(false);
+  const [downloadUrl, setDownloadUrl] = useState<string>();
 
   const handleBigButtonClick = async () => {
     if (installationState == InstallationState.Ready) {
-      // start game process
-      console.log("Starting Child Process!");
       window.API.startGame();
       setInstallationState(InstallationState.Playing);
     }
 
-    if (
-      installationState == InstallationState.PendingInstall ||
-      installationState == InstallationState.PendingUpdate
-    ) {
+    if (installationState == InstallationState.PendingInstall) {
+      setInstallDialogOpened(true);
+      return;
+    }
+
+    if (installationState == InstallationState.PendingUpdate) {
       startDownload();
     }
   };
 
   const startDownload = async (resume?: boolean) => {
     try {
-      console.log("Download Start");
       setInstallationState(InstallationState.Downloading);
-
-      await window.API.downloadFile(
-        "https://github.com/nzhul/tic-tac-toe-online/releases/download/v15/build-StandaloneWindows64-v15.zip",
-        // "https://github.com/microsoft/AzureStorageExplorer/archive/refs/tags/v1.28.1.zip",
-        // "https://izotcomputers.com/katalog/web/files/katalog.pdf",
-        // "https://izotcomputers.com/team/videos/11_runuta_prai_borbata.mp4",
-        // "https://research.nhm.org/pdfs/10840/10840.pdf",
-        resume
-      );
+      // "https://github.com/nzhul/tic-tac-toe-online/releases/download/v15/build-StandaloneWindows64-v15.zip"
+      await window.API.downloadFile(downloadUrl, resume);
     } catch (error) {
       console.log(error);
     }
@@ -70,6 +66,21 @@ const DownloadBtn = () => {
 
   const checkState = async () => {
     const { pauseInfo, installInfo } = await window.API.getState();
+
+    // eslint-disable-next-line no-debugger
+    let latestRelease = undefined;
+
+    try {
+      latestRelease = await getLatestReleaseInfo();
+    } catch (error) {
+      console.warn("Cannot fetch latest release from github." + error);
+    }
+
+    // 'https://github.com/nzhul/tic-tac-toe-online/releases/download/v15/build-StandaloneWindows64-v15.zip'
+    const downloadUrlLocal = latestRelease.assets[0].browser_download_url;
+    const remoteVersion = extractVersion(downloadUrlLocal);
+    setRemoteVersion(remoteVersion);
+    setDownloadUrl(downloadUrlLocal);
 
     if (pauseInfo) {
       setInstallationState(InstallationState.Paused);
@@ -91,21 +102,10 @@ const DownloadBtn = () => {
 
     setInstallInfo(installInfo);
 
-    // eslint-disable-next-line no-debugger
-    let latestRelease = undefined;
-
-    try {
-      latestRelease = await getLatestReleaseInfo();
-    } catch (error) {
-      console.warn("Cannot fetch latest release from github." + error);
-    }
-
-    // 'https://github.com/nzhul/tic-tac-toe-online/releases/download/v15/build-StandaloneWindows64-v15.zip'
-    const downloadUrl = latestRelease.assets[0].browser_download_url;
-    const remoteVersion = extractVersion(downloadUrl);
-    setRemoteVersion(remoteVersion);
-
-    if (installInfo.gameClientVersion < remoteVersion) {
+    if (
+      installInfo.gameClientVersion != 0 &&
+      installInfo.gameClientVersion < remoteVersion
+    ) {
       setInstallationState(InstallationState.PendingUpdate);
     } else if (installInfo.gameClientVersion == remoteVersion) {
       setInstallationState(InstallationState.Ready);
@@ -166,6 +166,15 @@ const DownloadBtn = () => {
 
   const handleUninstallProgress = (currentFile: string) => {
     setUninstallCurrentFile("./" + currentFile);
+  };
+
+  const handleInstallDialogClose = () => {
+    setInstallDialogOpened(false);
+  };
+
+  const handleInstallConfirm = () => {
+    startDownload();
+    setInstallDialogOpened(false);
   };
 
   // --- privates ---
@@ -239,6 +248,7 @@ const DownloadBtn = () => {
 
   // We do not render the button untill the version is compared using remote github api call.
   // We do this to prevent flickering.
+  // TODO: Replace with Loading/Spinner/Skeleton
   if (!versionChecked) {
     return <></>;
   }
@@ -260,20 +270,26 @@ const DownloadBtn = () => {
             installationState == InstallationState.Paused ||
             installationState == InstallationState.Extracting ||
             installationState == InstallationState.Playing ||
-            installationState == InstallationState.Uninstalling
+            installationState == InstallationState.Uninstalling ||
+            !downloadUrl
           }
           sx={{
             width: "100%",
             height: "70px",
             fontSize: 24,
             letterSpacing: 3,
-            borderRadius: "5px 0px 0px 5px",
+            borderRadius:
+              installationState == InstallationState.PendingInstall
+                ? "5px"
+                : "5px 0px 0px 5px",
           }}
         >
           {resolveLabel()}
         </Button>
         {/* TODO: Make GameSettingsBtn visible only when game is installed */}
-        <GameSettingsBtn onUninstallConfirm={handleUninstall} />
+        {installationState != InstallationState.PendingInstall && (
+          <GameSettingsBtn onUninstallConfirm={handleUninstall} />
+        )}
       </Box>
       <Box sx={{ height: "55px" }}>
         {(installationState == InstallationState.Downloading ||
@@ -346,6 +362,11 @@ const DownloadBtn = () => {
           </Box>
         )}
       </Box>
+      <InstallDialog
+        open={installDialogOpened}
+        onClose={handleInstallDialogClose}
+        onConfirm={handleInstallConfirm}
+      />
     </Box>
   );
 };
