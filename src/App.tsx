@@ -1,9 +1,11 @@
 import { ThemeProvider } from "@mui/material";
 import Container from "@mui/material/Container";
-import Grid from "@mui/material/Grid";
 import * as ReactDOM from "react-dom/client";
-import ChatList from "./renderer/chat/ChatList";
-import DownloadBtn from "./renderer/features/download/DownloadBtn";
+import { HashRouter, Route, Routes } from "react-router-dom";
+import HomePage from "./renderer/features/HomePage";
+import LearnPage from "./renderer/features/LearnPage";
+import LoginPage from "./renderer/features/LoginPage";
+import StorePage from "./renderer/features/StorePage";
 import NavBar from "./renderer/layout/Navbar";
 import { initializeTheme } from "./renderer/layout/Theme";
 
@@ -14,32 +16,24 @@ const root = ReactDOM.createRoot(
 const theme = initializeTheme();
 
 root.render(
-  <ThemeProvider theme={theme}>
-    <NavBar />
+  <HashRouter>
+    <ThemeProvider theme={theme}>
+      <NavBar />
 
-    <Container
-      data-testid="page-container"
-      maxWidth={false}
-      sx={{ marginTop: 5 }}
-    >
-      <Grid columnGap={2} container>
-        <Grid item xs>
-          Left
-        </Grid>
-        <Grid item style={{ width: "300px" }}>
-          <ChatList />
-          <DownloadBtn />
-        </Grid>
-      </Grid>
-
-      {/* <SimpleList
-        items={[
-          { id: 1, name: "file1" },
-          { id: 2, name: "file2" },
-        ]}
-      /> */}
-    </Container>
-  </ThemeProvider>
+      <Container
+        data-testid="page-container"
+        maxWidth={false}
+        sx={{ marginTop: 5 }}
+      >
+        <Routes>
+          <Route path="/" element={<LoginPage />} />
+          <Route path="/main_window" element={<HomePage />} />
+          <Route path="/learn" element={<LearnPage />} />
+          <Route path="/store" element={<StorePage />} />
+        </Routes>
+      </Container>
+    </ThemeProvider>
+  </HashRouter>
 );
 
 // Clears the annoying "Download the React DevTools for a better development experience" text

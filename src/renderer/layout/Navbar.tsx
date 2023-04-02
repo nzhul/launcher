@@ -8,8 +8,12 @@ import Button from "@mui/material/Button";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { IconButton, Menu } from "@mui/material";
+import NavButton from "./NavButton";
 
 const NavBar = () => {
+  const navigate = useNavigate();
   const [maximized, setMaximized] = useState<boolean>(false);
 
   // #dd1313 - red color, can be used for [ X ] background color.
@@ -35,6 +39,7 @@ const NavBar = () => {
         position="static"
         sx={{
           backgroundColor: "primary.main",
+          height: "60px",
         }}
       >
         <Toolbar disableGutters style={{ paddingLeft: 12 }}>
@@ -42,14 +47,38 @@ const NavBar = () => {
             variant="h6"
             component="div"
             sx={{
-              flexGrow: 1,
-              "@media (max-width: 599px)": {
-                mt: "0px",
-              },
+              ml: 3,
+              mr: 0,
             }}
           >
-            Ancient Warriors
+            <Button
+              variant="text"
+              onClick={() => {
+                navigate("/main_window");
+              }}
+              sx={{
+                WebkitAppRegion: "no-drag",
+                color: "white",
+              }}
+            >
+              Ancient Warriors
+            </Button>
           </Typography>
+          <Box sx={{ flexGrow: 1, ml: 5 }}>
+            <NavButton
+              title="Learn"
+              sx={{ borderLeft: "2px solid #3D3D3D" }}
+              onClick={() => {
+                navigate("/learn");
+              }}
+            />
+            <NavButton
+              title="Store"
+              onClick={() => {
+                navigate("/store");
+              }}
+            />
+          </Box>
           <Button
             onClick={() => {
               window.API.minimizeApp();
