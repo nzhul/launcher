@@ -35,6 +35,9 @@ declare global {
       // --- Install Dialog
       selectDirectory: () => Promise<string | undefined>;
       getDefaultDirectory: () => Promise<string | undefined>;
+
+      // --- Login
+      setWindowSize: (width: number, height: number) => void;
     };
   }
 }

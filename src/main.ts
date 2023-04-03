@@ -1,6 +1,6 @@
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 
-import { app, BrowserWindow, dialog, ipcMain, shell } from "electron";
+import { app, BrowserWindow, dialog, ipcMain, screen, shell } from "electron";
 import fs from "fs";
 import path from "path";
 import fetch from "node-fetch";
@@ -27,11 +27,13 @@ if (require("electron-squirrel-startup")) {
 const createWindow = (): BrowserWindow => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    height: 832,
-    width: 1280,
+    height: 508,
+    width: 365,
+    // height: 832,
+    // width: 1280,
     backgroundColor: "#3d3d3d",
-    minWidth: 1000,
-    minHeight: 640,
+    // minWidth: 1000,
+    // minHeight: 640,
     frame: false,
     webPreferences: {
       devTools: process.env.NODE_ENV === "development" ? true : false,
@@ -46,7 +48,7 @@ const createWindow = (): BrowserWindow => {
 
   // Open the DevTools.
   if (process.env.NODE_ENV === "development") {
-    mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools();
   }
 
   return mainWindow;
@@ -482,6 +484,13 @@ ipcMain.handle("get-default-directory", () => {
 // TODO: Test this!
 ipcMain.on("set-window-size", (event, width: number, height: number) => {
   mainWindow.setSize(width, height, true);
+  mainWindow.setMinimumSize(1000, 640);
+
+  // center window
+  const workArea = screen.getPrimaryDisplay().workAreaSize;
+  const x = Math.floor((workArea.width - mainWindow.getSize()[0]) / 2);
+  const y = Math.floor((workArea.height - mainWindow.getSize()[1]) / 2);
+  mainWindow.setPosition(x, y);
 });
 
 // --- main.ts common

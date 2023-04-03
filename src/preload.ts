@@ -92,4 +92,9 @@ contextBridge.exposeInMainWorld("API", {
   getDefaultDirectory: async () => {
     return await ipcRenderer.invoke("get-default-directory");
   },
+
+  // --- Login
+  setWindowSize: (width: string, height: string) => {
+    ipcRenderer.send("set-window-size", width, height);
+  },
 });
