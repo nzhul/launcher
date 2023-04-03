@@ -14,7 +14,7 @@ const NavButton: React.FC<{ title: string; onClick: () => void; sx?: any }> = ({
         color: "white",
         borderRight: "2px solid #3D3D3D",
         borderRadius: 0,
-        transform: "skewX(-10deg)",
+        transform: "skewX(-8deg)",
         height: "60px",
         boxShadow: "none",
         fontWeight: 300,
@@ -36,7 +36,7 @@ const NavButton: React.FC<{ title: string; onClick: () => void; sx?: any }> = ({
     >
       <span
         style={{
-          transform: "skewX(10deg)",
+          transform: "skewX(8deg)",
         }}
       >
         {title}

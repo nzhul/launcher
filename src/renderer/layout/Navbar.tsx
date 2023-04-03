@@ -11,6 +11,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { IconButton, Menu } from "@mui/material";
 import NavButton from "./NavButton";
+import Logo from "./Logo";
 
 const NavBar = () => {
   const navigate = useNavigate();
@@ -43,31 +44,10 @@ const NavBar = () => {
         }}
       >
         <Toolbar disableGutters style={{ paddingLeft: 12 }}>
-          <Typography
-            variant="h6"
-            component="div"
-            sx={{
-              ml: 3,
-              mr: 0,
-            }}
-          >
-            <Button
-              variant="text"
-              onClick={() => {
-                navigate("/main_window");
-              }}
-              sx={{
-                WebkitAppRegion: "no-drag",
-                color: "white",
-              }}
-            >
-              Ancient Warriors
-            </Button>
-          </Typography>
+          <Logo />
           <Box sx={{ flexGrow: 1, ml: 5 }}>
             <NavButton
               title="Learn"
-              sx={{ borderLeft: "2px solid #3D3D3D" }}
               onClick={() => {
                 navigate("/learn");
               }}

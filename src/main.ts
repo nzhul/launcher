@@ -479,6 +479,11 @@ ipcMain.handle("get-default-directory", () => {
   return getDefaultDirectory();
 });
 
+// TODO: Test this!
+ipcMain.on("set-window-size", (event, width: number, height: number) => {
+  mainWindow.setSize(width, height, true);
+});
+
 // --- main.ts common
 
 const loadInstallInfo = (): InstallInfo | undefined => {
