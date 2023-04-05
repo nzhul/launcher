@@ -33,6 +33,14 @@ const config: ForgeConfig = {
               js: "./src/preload.ts",
             },
           },
+          {
+            html: "./src/splash/splash.html",
+            js: "./src/splash/renderer.ts",
+            name: "splash",
+            preload: {
+              js: "./src/splash/preload.ts",
+            },
+          },
         ],
       },
     }),

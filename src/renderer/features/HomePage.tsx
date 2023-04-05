@@ -25,7 +25,7 @@ const HomePage = () => {
       </Grid>
       <Grid item style={{ width: "300px" }}>
         <ChatList />
-        {/* <DownloadBtn /> */}
+        <DownloadBtn />
       </Grid>
     </Grid>
   );

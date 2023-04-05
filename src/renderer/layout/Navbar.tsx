@@ -7,13 +7,16 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { IconButton, Menu } from "@mui/material";
 import NavButton from "./NavButton";
 import Logo from "./Logo";
+import AuthContext from "../context/AuthContext";
+import AuthGuard from "../common/guards/AuthGuard";
 
 const NavBar = () => {
+  const { isAuthenticated } = useContext(AuthContext);
   const navigate = useNavigate();
   const [maximized, setMaximized] = useState<boolean>(false);
 
@@ -46,45 +49,49 @@ const NavBar = () => {
         <Toolbar disableGutters style={{ paddingLeft: 12 }}>
           <Logo />
           <Box sx={{ flexGrow: 1, ml: 5 }}>
-            <NavButton
-              title="Learn"
-              onClick={() => {
-                navigate("/learn");
-              }}
-            />
-            <NavButton
-              title="Store"
-              onClick={() => {
-                navigate("/store");
-              }}
-            />
+            <AuthGuard>
+              <NavButton
+                title="Learn"
+                onClick={() => {
+                  navigate("/learn");
+                }}
+              />
+              <NavButton
+                title="Store"
+                onClick={() => {
+                  navigate("/store");
+                }}
+              />
+            </AuthGuard>
           </Box>
-          <Button
-            onClick={() => {
-              window.API.minimizeApp();
-            }}
-            sx={systemButtonStyles}
-          >
-            <HorizontalRule sx={{ width: "20px" }} />
-          </Button>
-          <Button
-            onClick={() => {
-              if (maximized) {
-                window.API.unmaximizeApp();
-                setMaximized(false);
-              } else {
-                window.API.maximizeApp();
-                setMaximized(true);
-              }
-            }}
-            sx={systemButtonStyles}
-          >
-            {maximized ? (
-              <FilterNone sx={{ width: "20px" }} />
-            ) : (
-              <CropSquare sx={{ width: "20px" }} />
-            )}
-          </Button>
+          <AuthGuard>
+            <Button
+              onClick={() => {
+                window.API.minimizeApp();
+              }}
+              sx={systemButtonStyles}
+            >
+              <HorizontalRule sx={{ width: "20px" }} />
+            </Button>
+            <Button
+              onClick={() => {
+                if (maximized) {
+                  window.API.unmaximizeApp();
+                  setMaximized(false);
+                } else {
+                  window.API.maximizeApp();
+                  setMaximized(true);
+                }
+              }}
+              sx={systemButtonStyles}
+            >
+              {maximized ? (
+                <FilterNone sx={{ width: "20px" }} />
+              ) : (
+                <CropSquare sx={{ width: "20px" }} />
+              )}
+            </Button>
+          </AuthGuard>
           <Button
             onClick={() => {
               window.API.closeApp();

@@ -7,7 +7,6 @@ import fetch from "node-fetch";
 import yauzl from "yauzl";
 import { spawn } from "child_process";
 import { PauseInfo } from "./models/PauseInfo";
-import { Octokit } from "octokit";
 import { InstallInfo } from "./models/InstallInfo";
 import { extractVersion } from "./common/utils";
 
@@ -15,9 +14,11 @@ import { extractVersion } from "./common/utils";
 // plugin that tells the Electron app where to look for the Webpack-bundled app code (depending on
 // whether you're running in development or production).
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
+declare const SPLASH_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
 let mainWindow: BrowserWindow;
+let splashWindow: BrowserWindow;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -29,12 +30,9 @@ const createWindow = (): BrowserWindow => {
   const mainWindow = new BrowserWindow({
     height: 508,
     width: 365,
-    // height: 832,
-    // width: 1280,
     backgroundColor: "#3d3d3d",
-    // minWidth: 1000,
-    // minHeight: 640,
     frame: false,
+    show: app.isPackaged ? false : true, // TODO: use `false` when you have splash  screen enabled.
     webPreferences: {
       devTools: process.env.NODE_ENV === "development" ? true : false,
       nodeIntegration: false,
@@ -54,31 +52,18 @@ const createWindow = (): BrowserWindow => {
   return mainWindow;
 };
 
-const getRepoInfo = async () => {
-  // note: I am doing this decoding only to hide the token from github stupid detection alg that revokes tokens.
-  // this is just a simple read-only token from a blank account.
-  const decoded = Buffer.from(
-    "Z2hwX3A3alNCbXJRTHJPTU5nejJ5ZFk0NGhyVEdUczlVeTJEMjJsTw==",
-    "base64"
-  ).toString();
-
-  const octokit = new Octokit({
-    auth: decoded,
+const createSplashWindow = (): BrowserWindow => {
+  const win = new BrowserWindow({
+    height: 508,
+    width: 365,
+    backgroundColor: "#3d3d3d",
+    frame: false,
   });
 
-  const response = await octokit.request(
-    "GET /repos/nzhul/tic-tac-toe-online/releases/latest",
-    {
-      owner: "OWNER",
-      repo: "REPO",
-      headers: {
-        "X-GitHub-Api-Version": "2022-11-28",
-      },
-    }
-  );
+  // win.loadFile("./src/splash.html");
+  win.loadURL(SPLASH_WEBPACK_ENTRY);
 
-  // eslint-disable-next-line no-debugger
-  console.log(response);
+  return win;
 };
 
 // This method will be called when Electron has finished
@@ -86,7 +71,17 @@ const getRepoInfo = async () => {
 // Some APIs can only be used after this event occurs.
 app.on("ready", () => {
   mainWindow = createWindow();
-  // getRepoInfo();
+
+  // TODO: Uncomment for splash
+  if (app.isPackaged) {
+    splashWindow = createSplashWindow();
+    mainWindow.once("ready-to-show", () => {
+      setTimeout(() => {
+        splashWindow.destroy();
+        mainWindow.show();
+      }, 1000);
+    });
+  }
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common

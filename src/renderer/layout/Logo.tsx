@@ -1,8 +1,11 @@
 import { Typography, Box } from "@mui/material";
+import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import AuthContext from "../context/AuthContext";
 
 const Logo = () => {
   const navigate = useNavigate();
+  const { isAuthenticated } = useContext(AuthContext);
 
   return (
     <Typography
@@ -15,17 +18,22 @@ const Logo = () => {
     >
       <Box
         onClick={() => {
+          if (!isAuthenticated) {
+            return;
+          }
+
           console.log("Clicked");
           navigate("/main_window");
         }}
         sx={{
-          WebkitAppRegion: "no-drag",
+          WebkitAppRegion: isAuthenticated ? "no-drag" : "drag",
           color: "white",
           position: "relative",
           top: "16px",
+          left: isAuthenticated ? "0px" : "20px",
           width: "270px",
           height: "94px",
-          cursor: "pointer",
+          cursor: isAuthenticated ? "pointer" : "default",
           display: "flex",
           justifyContent: "center",
           alignContent: "center",
