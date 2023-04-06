@@ -10,6 +10,35 @@ const ERROR_COLOR = "#ff285a";
 const initializeTheme = () => {
   return createTheme({
     components: {
+      MuiOutlinedInput: {
+        styleOverrides: {
+          root: {
+            backgroundColor: "#595959",
+            "& .MuiInputAdornment-root svg": {
+              color: "white",
+              opacity: 0.4,
+            },
+            "& .MuiInputBase-input::placeholder": {
+              color: "white",
+              opacity: 0.4,
+              fontWeight: 300,
+            },
+          },
+        },
+      },
+      MuiLink: {
+        styleOverrides: {
+          root: {
+            textDecoration: "none",
+            color: "white",
+            opacity: 0.7,
+            "&:hover": {
+              textDecoration: "underline",
+              cursor: "pointer",
+            },
+          },
+        },
+      },
       MuiMenu: {
         styleOverrides: {
           paper: {

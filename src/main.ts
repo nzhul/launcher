@@ -30,6 +30,7 @@ const createWindow = (): BrowserWindow => {
   const mainWindow = new BrowserWindow({
     height: 508,
     width: 365,
+    resizable: false,
     backgroundColor: "#3d3d3d",
     frame: false,
     show: app.isPackaged ? false : true, // TODO: use `false` when you have splash  screen enabled.
@@ -479,6 +480,7 @@ ipcMain.handle("get-default-directory", () => {
 // TODO: Test this!
 ipcMain.on("set-window-size", (event, width: number, height: number) => {
   mainWindow.setSize(width, height, true);
+  mainWindow.setResizable(true);
   mainWindow.setMinimumSize(1000, 640);
 
   // center window
