@@ -11,9 +11,18 @@ import {
   TextField,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import agent from "../../api/agent";
 
 const LoginPage = () => {
   const navigate = useNavigate();
+
+  const handleLogin = async () => {
+    const result = await agent.Users.login({
+      username: "nzhul",
+      password: "password",
+    });
+    console.log(result);
+  };
 
   return (
     <>
@@ -85,7 +94,8 @@ const LoginPage = () => {
             variant="contained"
             sx={{ width: "100%", height: "70px", fontSize: 20 }}
             onClick={() => {
-              navigate("/main_window");
+              // navigate("/main_window");
+              handleLogin();
             }}
           >
             Login

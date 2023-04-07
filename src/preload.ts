@@ -2,6 +2,7 @@
 // https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
 
 import { contextBridge, ipcRenderer } from "electron";
+import { AppConfig } from "./models/infrastructure/AppConfig";
 
 contextBridge.exposeInMainWorld("API", {
   getFiles: async (directoryName: string) => {
@@ -96,5 +97,8 @@ contextBridge.exposeInMainWorld("API", {
   // --- Login
   setWindowSize: (width: string, height: string) => {
     ipcRenderer.send("set-window-size", width, height);
+  },
+  getEnvVariables: async (): Promise<AppConfig> => {
+    return await ipcRenderer.invoke("get-env-variables");
   },
 });

@@ -9,7 +9,9 @@ import { mainConfig } from "./webpack.main.config";
 import { rendererConfig } from "./webpack.renderer.config";
 
 const config: ForgeConfig = {
-  packagerConfig: {},
+  packagerConfig: {
+    extraResource: ["./src/assets/app.json"],
+  },
   rebuildConfig: {},
   makers: [
     new MakerSquirrel({}),

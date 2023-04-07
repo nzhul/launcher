@@ -1,5 +1,6 @@
 import { PauseInfo } from "../models/PauseInfo";
-import { InstallInfo } from "..//models/InstallInfo";
+import { InstallInfo } from "../models/InstallInfo";
+import { AppConfig } from "../models/infrastructure/AppConfig";
 
 export {};
 
@@ -38,6 +39,7 @@ declare global {
 
       // --- Login
       setWindowSize: (width: number, height: number) => void;
+      getEnvVariables: () => Promise<AppConfig>;
     };
   }
 }
