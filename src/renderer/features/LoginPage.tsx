@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import agent from "../../api/agent";
+import { useEffect } from "react";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -23,6 +24,14 @@ const LoginPage = () => {
     });
     console.log(result);
   };
+
+  useEffect(() => {
+    // HACK: Fix for broken characters in <TextField>
+    // Characters are broken after the app is packaged.
+    document.querySelectorAll(".notranslate").forEach((e) => {
+      e.innerHTML = "&ZeroWidthSpace;";
+    });
+  }, []);
 
   return (
     <>
