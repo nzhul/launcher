@@ -1,15 +1,15 @@
-process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
+process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true';
 
-import { app, BrowserWindow, dialog, ipcMain, screen, shell } from "electron";
-import fs from "fs";
-import path from "path";
-import fetch from "node-fetch";
-import yauzl from "yauzl";
-import { spawn } from "child_process";
-import { PauseInfo } from "./models/PauseInfo";
-import { InstallInfo } from "./models/InstallInfo";
-import { extractVersion } from "./common/utils";
-import { AppConfig } from "./models/infrastructure/AppConfig";
+import { app, BrowserWindow, dialog, ipcMain, screen, shell } from 'electron';
+import fs from 'fs';
+import path from 'path';
+import fetch from 'node-fetch';
+import yauzl from 'yauzl';
+import { spawn } from 'child_process';
+import { PauseInfo } from './models/PauseInfo';
+import { InstallInfo } from './models/InstallInfo';
+import { extractVersion } from './common/utils';
+import { AppConfig } from './models/infrastructure/AppConfig';
 
 // import * as dotenv from "dotenv";
 // dotenv.config({ path: ".env.development" });
@@ -25,7 +25,7 @@ let mainWindow: BrowserWindow;
 let splashWindow: BrowserWindow;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
-if (require("electron-squirrel-startup")) {
+if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
@@ -35,11 +35,11 @@ const createWindow = (): BrowserWindow => {
     height: 508,
     width: 365,
     resizable: true,
-    backgroundColor: "#3d3d3d",
+    backgroundColor: '#3d3d3d',
     frame: false,
     show: app.isPackaged ? false : true, // TODO: use `false` when you have splash  screen enabled.
     webPreferences: {
-      devTools: true, // process.env.NODE_ENV === "development" ? true : false,
+      devTools: process.env.NODE_ENV === 'development' ? true : false,
       nodeIntegration: false,
       contextIsolation: true,
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
@@ -50,7 +50,7 @@ const createWindow = (): BrowserWindow => {
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
   // Open the DevTools.
-  if (process.env.NODE_ENV === "development") {
+  if (process.env.NODE_ENV === 'development') {
     // mainWindow.webContents.openDevTools();
   }
 
@@ -61,7 +61,7 @@ const createSplashWindow = (): BrowserWindow => {
   const win = new BrowserWindow({
     height: 508,
     width: 365,
-    backgroundColor: "#3d3d3d",
+    backgroundColor: '#3d3d3d',
     frame: false,
   });
 
@@ -78,21 +78,21 @@ const createSplashWindow = (): BrowserWindow => {
 let configFilePath: string;
 
 if (app.isPackaged) {
-  configFilePath = path.join(process.resourcesPath, "app.json");
+  configFilePath = path.join(process.resourcesPath, 'app.json');
 } else {
-  configFilePath = path.join(__dirname, "assets/app.json");
+  configFilePath = path.join(__dirname, 'assets/app.json');
 }
 
-const configString = fs.readFileSync(configFilePath, "utf-8");
+const configString = fs.readFileSync(configFilePath, 'utf-8');
 const appConfig: AppConfig = JSON.parse(configString);
 
-app.on("ready", () => {
+app.on('ready', () => {
   mainWindow = createWindow();
 
   // TODO: Uncomment for splash
   if (app.isPackaged) {
     splashWindow = createSplashWindow();
-    mainWindow.once("ready-to-show", () => {
+    mainWindow.once('ready-to-show', () => {
       setTimeout(() => {
         splashWindow.destroy();
         mainWindow.show();
@@ -104,13 +104,13 @@ app.on("ready", () => {
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
-app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
     app.quit();
   }
 });
 
-app.on("activate", () => {
+app.on('activate', () => {
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (BrowserWindow.getAllWindows().length === 0) {
@@ -120,7 +120,7 @@ app.on("activate", () => {
 
 // ==============================================
 
-ipcMain.on("get-files", (event, directoryName) => {
+ipcMain.on('get-files', (event, directoryName) => {
   // Get the list of files in the directory
   const files = fs.readdirSync(directoryName);
   // Map each file name to an object with name, path and size properties
@@ -130,14 +130,14 @@ ipcMain.on("get-files", (event, directoryName) => {
     size: fs.statSync(path.join(directoryName, file)).size,
   }));
   // Send back the file objects to the renderer process
-  event.reply("get-files-reply", fileObjects);
+  event.reply('get-files-reply', fileObjects);
 });
 
-ipcMain.handle("get-state", async (_) => {
-  const pauseFile = path.join(app.getPath("userData"), "pause-info.json");
+ipcMain.handle('get-state', async (_) => {
+  const pauseFile = path.join(app.getPath('userData'), 'pause-info.json');
   const installInfoFile = path.join(
-    app.getPath("userData"),
-    "install-info.json"
+    app.getPath('userData'),
+    'install-info.json',
   );
 
   let pauseInfo: PauseInfo;
@@ -146,14 +146,14 @@ ipcMain.handle("get-state", async (_) => {
   if (!fs.existsSync(pauseFile)) {
     pauseInfo = undefined;
   } else {
-    const downloadStateString = fs.readFileSync(pauseFile, "utf-8");
+    const downloadStateString = fs.readFileSync(pauseFile, 'utf-8');
     pauseInfo = JSON.parse(downloadStateString);
   }
 
   if (!fs.existsSync(installInfoFile)) {
     installInfo = undefined;
   } else {
-    const installInfoString = fs.readFileSync(installInfoFile, "utf-8");
+    const installInfoString = fs.readFileSync(installInfoFile, 'utf-8');
     installInfo = JSON.parse(installInfoString);
   }
 
@@ -168,16 +168,16 @@ ipcMain.handle("get-state", async (_) => {
 let controller: AbortController | undefined;
 let downloadedBytes = 0;
 let total = 0;
-const pauseFile = path.join(app.getPath("userData"), "pause-info.json"); // path to file for storing paused download data
+const pauseFile = path.join(app.getPath('userData'), 'pause-info.json'); // path to file for storing paused download data
 const installInfoFilePath = path.join(
-  app.getPath("userData"),
-  "install-info.json"
+  app.getPath('userData'),
+  'install-info.json',
 );
-const gameDirectoryName = "AncientWarriors";
-const gameFileName = "StandaloneWindows64.exe";
+const gameDirectoryName = 'AncientWarriors';
+const gameFileName = 'StandaloneWindows64.exe';
 
 ipcMain.handle(
-  "download-file",
+  'download-file',
   async (event, url: string, resume?: boolean) => {
     const installInfo = loadInstallInfo() || {
       installDirectory: getDefaultDirectory(),
@@ -185,7 +185,7 @@ ipcMain.handle(
     const fileName = path.basename(url);
     const gameDirectory = path.join(
       installInfo.installDirectory,
-      gameDirectoryName
+      gameDirectoryName,
     );
     const fullFilePath = path.join(gameDirectory, fileName);
 
@@ -198,7 +198,7 @@ ipcMain.handle(
     let speedBytes = 0;
 
     if (resume) {
-      const pauseInfoString = fs.readFileSync(pauseFile, "utf-8");
+      const pauseInfoString = fs.readFileSync(pauseFile, 'utf-8');
       const pauseInfo: PauseInfo = JSON.parse(pauseInfoString);
       downloadedBytes = pauseInfo.downloadedBytes;
       total = pauseInfo.totalBytes;
@@ -208,9 +208,9 @@ ipcMain.handle(
     }
 
     const options = {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Content-Type": "application/octet-stream",
+        'Content-Type': 'application/octet-stream',
         Range: `bytes=${downloadedBytes}-`,
       },
       signal: controller?.signal,
@@ -224,12 +224,12 @@ ipcMain.handle(
 
     // if it is the first request - we store the total lenght
     if (!resume) {
-      const contentLength = response.headers.get("content-length");
+      const contentLength = response.headers.get('content-length');
       total = contentLength ? parseInt(contentLength, 10) : NaN;
     }
 
     const fileStream = fs.createWriteStream(fullFilePath, {
-      flags: resume ? "a" : "w",
+      flags: resume ? 'a' : 'w',
     });
     response.body.pipe(fileStream);
 
@@ -239,7 +239,7 @@ ipcMain.handle(
     let lastReportTime = 0;
     const MIN_SEND_INTERVAL_MS = 10;
 
-    response.body.on("data", (chunk: Buffer) => {
+    response.body.on('data', (chunk: Buffer) => {
       downloadedBytes += chunk.length;
       speedBytes += chunk.length;
       progressRaw = isNaN(total) ? NaN : downloadedBytes / total;
@@ -250,7 +250,7 @@ ipcMain.handle(
 
       const currentTime = Date.now();
       if (currentTime - lastReportTime > MIN_SEND_INTERVAL_MS) {
-        event.sender.send("download-progress", {
+        event.sender.send('download-progress', {
           downloadedBytes,
           totalBytes: total,
           progress,
@@ -261,7 +261,7 @@ ipcMain.handle(
       }
     });
 
-    response.body.on("end", () => {
+    response.body.on('end', () => {
       fileStream.end();
       fileStream.close();
 
@@ -277,12 +277,12 @@ ipcMain.handle(
       fs.writeFileSync(
         installInfoFilePath,
         JSON.stringify(installInfoNew),
-        "utf-8"
+        'utf-8',
       );
-      event.sender.send("download-complete", fullFilePath); // TODO: Start listening for this event in the frontend!
+      event.sender.send('download-complete', fullFilePath); // TODO: Start listening for this event in the frontend!
     });
 
-    response.body.on("error", (err: Error) => {
+    response.body.on('error', (err: Error) => {
       fileStream.end();
       fileStream.close();
 
@@ -292,20 +292,20 @@ ipcMain.handle(
         totalBytes: total,
       };
 
-      fs.writeFileSync(pauseFile, JSON.stringify(pauseInfo), "utf-8"); // save paused download data to file
+      fs.writeFileSync(pauseFile, JSON.stringify(pauseInfo), 'utf-8'); // save paused download data to file
       console.log(`Download paused at ${downloadedBytes} bytes: ${err}`);
     });
 
     return new Promise<void>((resolve, reject) => {
-      fileStream.on("close", resolve);
-      fileStream.on("error", reject);
+      fileStream.on('close', resolve);
+      fileStream.on('error', reject);
     });
-  }
+  },
 );
 
-ipcMain.on("download-pause", () => {
+ipcMain.on('download-pause', () => {
   if (controller) {
-    console.log("download paused!");
+    console.log('download paused!');
     controller.abort();
     controller = undefined;
   }
@@ -313,7 +313,7 @@ ipcMain.on("download-pause", () => {
 
 // ---- Extracting ----
 ipcMain.handle(
-  "extract-file",
+  'extract-file',
   async (event: Electron.IpcMainInvokeEvent, zipFilePath: string) => {
     return new Promise((resolve, reject) => {
       const extractPath = path.dirname(zipFilePath);
@@ -322,10 +322,10 @@ ipcMain.handle(
         if (err) reject(err);
 
         zipFile.readEntry();
-        zipFile.on("entry", (entry) => {
+        zipFile.on('entry', (entry) => {
           const outputFilePath = path.join(extractPath, entry.fileName);
 
-          if (entry.fileName.endsWith("/") || entry.fileName.endsWith("\\")) {
+          if (entry.fileName.endsWith('/') || entry.fileName.endsWith('\\')) {
             if (!fs.existsSync(outputFilePath)) {
               fs.mkdirSync(outputFilePath, { recursive: true });
             }
@@ -335,7 +335,7 @@ ipcMain.handle(
           }
 
           const file = path.basename(entry.fileName);
-          event.sender.send("extract-progress", file);
+          event.sender.send('extract-progress', file);
 
           // extrac the file
           zipFile.openReadStream(entry, (err, readStream) => {
@@ -345,7 +345,7 @@ ipcMain.handle(
 
             const writeStream = fs.createWriteStream(outputFilePath);
 
-            readStream.on("end", () => {
+            readStream.on('end', () => {
               zipFile.readEntry();
             });
 
@@ -353,49 +353,49 @@ ipcMain.handle(
           });
         });
 
-        zipFile.on("close", () => {
+        zipFile.on('close', () => {
           console.log(`Extraction complete.}`);
           fs.unlinkSync(zipFilePath);
-          resolve("Extraction complete");
+          resolve('Extraction complete');
         });
       });
     });
-  }
+  },
 );
 
 // --- Game Session ---
-ipcMain.on("start-game", (event) => {
+ipcMain.on('start-game', (event) => {
   const installInfo = loadInstallInfo();
   const exePath = path.join(
     installInfo.installDirectory,
     gameDirectoryName,
-    gameFileName
+    gameFileName,
   );
   const process = spawn(exePath);
 
-  process.on("exit", (code) => {
+  process.on('exit', (code) => {
     console.log(`Child process exited with code ${code}`);
-    event.sender.send("on-quit-game", code);
+    event.sender.send('on-quit-game', code);
   });
 
-  process.on("error", (err) => {
-    console.error("Failed to start child process: ", err);
+  process.on('error', (err) => {
+    console.error('Failed to start child process: ', err);
   });
 });
 
 // --- Uninstall ---
-ipcMain.handle("uninstall-game", async (event: Electron.IpcMainInvokeEvent) => {
+ipcMain.handle('uninstall-game', async (event: Electron.IpcMainInvokeEvent) => {
   return new Promise((resolve, reject) => {
     const installInfo = loadInstallInfo();
     try {
       const gamePath = path.join(
         installInfo.installDirectory,
-        gameDirectoryName
+        gameDirectoryName,
       );
 
       deleteFolderRecursive(gamePath, event);
       deleteInstallState();
-      resolve("deleted");
+      resolve('deleted');
     } catch (error) {
       reject(error);
     }
@@ -404,7 +404,7 @@ ipcMain.handle("uninstall-game", async (event: Electron.IpcMainInvokeEvent) => {
 
 const deleteFolderRecursive = function (
   directoryPath: string,
-  event: Electron.IpcMainInvokeEvent
+  event: Electron.IpcMainInvokeEvent,
 ) {
   if (fs.existsSync(directoryPath)) {
     fs.readdirSync(directoryPath).forEach((file, index) => {
@@ -415,7 +415,7 @@ const deleteFolderRecursive = function (
       } else {
         // delete file
         const fileName = path.basename(curPath);
-        event.sender.send("uninstall-progress", fileName);
+        event.sender.send('uninstall-progress', fileName);
         fs.unlinkSync(curPath);
       }
     });
@@ -424,8 +424,8 @@ const deleteFolderRecursive = function (
 };
 
 const deleteInstallState = () => {
-  const pauseFile = path.join(app.getPath("userData"), "pause-info.json");
-  const installFile = path.join(app.getPath("userData"), "install-info.json");
+  const pauseFile = path.join(app.getPath('userData'), 'pause-info.json');
+  const installFile = path.join(app.getPath('userData'), 'install-info.json');
 
   if (fs.existsSync(pauseFile)) {
     fs.unlinkSync(pauseFile);
@@ -437,39 +437,39 @@ const deleteInstallState = () => {
 };
 
 // ---- Tray icons
-ipcMain.on("close-app", () => {
+ipcMain.on('close-app', () => {
   const windows = BrowserWindow.getAllWindows();
   windows.forEach((window) => {
     window.close();
   });
 });
 
-ipcMain.on("maximize-app", () => {
+ipcMain.on('maximize-app', () => {
   mainWindow.maximize();
 });
 
-ipcMain.on("unmaximize-app", () => {
+ipcMain.on('unmaximize-app', () => {
   mainWindow.unmaximize();
 });
 
-ipcMain.on("minimize-app", () => {
+ipcMain.on('minimize-app', () => {
   mainWindow.minimize();
 });
 
-ipcMain.on("reveal-in-explorer", () => {
+ipcMain.on('reveal-in-explorer', () => {
   const installInfo = loadInstallInfo();
   const exePath = path.join(
     installInfo.installDirectory,
     gameDirectoryName,
-    gameFileName
+    gameFileName,
   );
   shell.showItemInFolder(exePath);
 });
 
-ipcMain.handle("select-directory", async () => {
+ipcMain.handle('select-directory', async () => {
   return new Promise((resolve, reject) => {
     const result = dialog.showOpenDialogSync({
-      properties: ["openDirectory"],
+      properties: ['openDirectory'],
     });
 
     if (result && result.length > 0) {
@@ -481,7 +481,7 @@ ipcMain.handle("select-directory", async () => {
       fs.writeFileSync(
         installInfoFilePath,
         JSON.stringify(installInfo),
-        "utf-8"
+        'utf-8',
       );
     }
 
@@ -489,35 +489,46 @@ ipcMain.handle("select-directory", async () => {
   });
 });
 
-ipcMain.handle("get-default-directory", () => {
+ipcMain.handle('get-default-directory', () => {
   return getDefaultDirectory();
 });
 
 // TODO: Test this!
-ipcMain.on("set-window-size", (event, width: number, height: number) => {
-  mainWindow.setSize(width, height, true);
-  mainWindow.setResizable(true);
-  mainWindow.setMinimumSize(1000, 640);
+ipcMain.on(
+  'set-window-size',
+  (
+    event,
+    width: number,
+    height: number,
+    resizable: boolean,
+    minWidth: number,
+    minHeight: number,
+  ) => {
+    mainWindow.unmaximize();
+    mainWindow.setMinimumSize(minWidth, minHeight);
+    mainWindow.setSize(width, height, true);
+    mainWindow.setResizable(resizable);
 
-  // center window
-  const workArea = screen.getPrimaryDisplay().workAreaSize;
-  const x = Math.floor((workArea.width - mainWindow.getSize()[0]) / 2);
-  const y = Math.floor((workArea.height - mainWindow.getSize()[1]) / 2);
-  mainWindow.setPosition(x, y);
-});
+    const winBounds = mainWindow.getBounds();
+    const nearestDisplay = screen.getDisplayNearestPoint({
+      x: winBounds.x,
+      y: winBounds.y,
+    });
 
-ipcMain.handle("get-env-variables", async (): Promise<AppConfig> => {
+    const workAreaSize = nearestDisplay.workAreaSize;
+    const workArea = nearestDisplay.workArea;
+    const x = Math.floor((workAreaSize.width - mainWindow.getSize()[0]) / 2);
+    const y = Math.floor((workAreaSize.height - mainWindow.getSize()[1]) / 2);
+
+    mainWindow.setPosition(workArea.x + x, workArea.y + y);
+  },
+);
+
+ipcMain.handle('get-env-variables', async (): Promise<AppConfig> => {
   return new Promise((resolve, reject) => {
     resolve(appConfig);
   });
 });
-
-// ipcMain.handle("get-env-variables", async () => {
-//   return new Promise((resolve, reject) => {
-//     const { REACT_APP_API_URL } = process.env;
-//     resolve({ REACT_APP_API_URL });
-//   });
-// });
 
 // --- main.ts common
 
@@ -527,7 +538,7 @@ const loadInstallInfo = (): InstallInfo | undefined => {
   if (!fs.existsSync(installInfoFilePath)) {
     installInfo = undefined;
   } else {
-    const installInfoString = fs.readFileSync(installInfoFilePath, "utf-8");
+    const installInfoString = fs.readFileSync(installInfoFilePath, 'utf-8');
     installInfo = JSON.parse(installInfoString);
   }
 
@@ -535,5 +546,5 @@ const loadInstallInfo = (): InstallInfo | undefined => {
 };
 
 const getDefaultDirectory = () => {
-  return app.getPath("home");
+  return app.getPath('home');
 };

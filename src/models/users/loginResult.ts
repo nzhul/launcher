@@ -1,4 +1,6 @@
+import { User } from './user';
+
 export interface LoginResult {
-    tokenString: string;
-  }
-  
+  tokenString: string;
+  user: User;
+}

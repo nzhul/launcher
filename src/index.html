@@ -3,6 +3,53 @@
   <head>
     <title>Launcher App</title>
   </head>
+  <style>
+    body {
+      background-color: #3d3d3d;
+    }
+    .container {
+      position: relative;
+      left: 20px;
+      width: 90px;
+      height: 80px;
+      margin: 0 auto;
+      margin-top: 200px;
+      color: white;
+      display: block;
+    }
+    .loader {
+      width: 48px;
+      height: 48px;
+      border: 1px solid #fff;
+      border-radius: 50%;
+      display: block;
+      position: relative;
+      box-sizing: border-box;
+      animation: rotation 0.5s linear infinite;
+    }
+    .loader::after {
+      content: "";
+      box-sizing: border-box;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 33px;
+      height: 33px;
+      border-radius: 50%;
+      border: 2px solid;
+      border-color: #49b76b transparent;
+    }
+
+    @keyframes rotation {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>

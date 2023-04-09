@@ -1,6 +1,6 @@
-import { PauseInfo } from "../models/PauseInfo";
-import { InstallInfo } from "../models/InstallInfo";
-import { AppConfig } from "../models/infrastructure/AppConfig";
+import { PauseInfo } from '../models/PauseInfo';
+import { InstallInfo } from '../models/InstallInfo';
+import { AppConfig } from '../models/infrastructure/AppConfig';
 
 export {};
 
@@ -38,7 +38,13 @@ declare global {
       getDefaultDirectory: () => Promise<string | undefined>;
 
       // --- Login
-      setWindowSize: (width: number, height: number) => void;
+      setWindowSize: (
+        width: number,
+        height: number,
+        resizable: boolean,
+        minWidth: number,
+        minHeight: number,
+      ) => void;
       getEnvVariables: () => Promise<AppConfig>;
     };
   }

@@ -23,7 +23,7 @@ const Logo = () => {
           }
 
           console.log("Clicked");
-          navigate("/main_window");
+          navigate("/");
         }}
         sx={{
           WebkitAppRegion: isAuthenticated ? "no-drag" : "drag",

@@ -1,7 +1,7 @@
-import Person from "@mui/icons-material/Person";
-import Lock from "@mui/icons-material/Lock";
+import Person from '@mui/icons-material/Person';
+import Lock from '@mui/icons-material/Lock';
 import {
-  Button,
+  Box,
   Checkbox,
   FormControlLabel,
   FormGroup,
@@ -9,29 +9,82 @@ import {
   InputAdornment,
   Link,
   TextField,
-} from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import agent from "../../api/agent";
-import { useEffect } from "react";
+} from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import agent from '../../api/agent';
+import { useContext, useEffect, useState } from 'react';
+import LoadingButton from '@mui/lab/LoadingButton';
+import SecureTextField from '../common/SecureTextField';
+import { LoginRequest } from '../../models/users/loginRequest';
+import Validator from '../../common/utils';
+import AuthContext from '../context/AuthContext';
+
+const USERNAME_REGEX = '^[a-zA-Z0-9_–-\\s&()\\.,/]*$';
+
+const emptyLoginRequest: LoginRequest = {
+  username: '',
+  password: '',
+};
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const { isAuthenticated, setUserInfo } = useContext(AuthContext);
 
-  const handleLogin = async () => {
-    const result = await agent.Users.login({
-      username: "nzhul",
-      password: "password",
-    });
-    console.log(result);
+  const [loginRequest, setLoginRequest] =
+    useState<LoginRequest>(emptyLoginRequest);
+  const [dirtyProps, setDirtyProps] = useState<string[]>([]);
+  const [submitting, setSubmitting] = useState<boolean>(false);
+  const [formValid, setFormValid] = useState<boolean>(false);
+  const [loginFailed, setLoginFailed] = useState<boolean>(false);
+
+  const handleSubmit = async () => {
+    const isValid = Object.values(validationSchema).every((x) => x.valid);
+    setFormValid(isValid);
+
+    setSubmitting(true);
+    setLoginFailed(false);
+    if (!isValid) return;
+
+    try {
+      const result = await agent.Users.login(loginRequest);
+      console.log(result);
+      setUserInfo(result);
+      setSubmitting(false);
+      navigate('/');
+    } catch (error) {
+      setLoginFailed(true);
+      setSubmitting(false);
+      setDirtyProps([]);
+    }
   };
 
   useEffect(() => {
     // HACK: Fix for broken characters in <TextField>
     // Characters are broken after the app is packaged.
-    document.querySelectorAll(".notranslate").forEach((e) => {
-      e.innerHTML = "&ZeroWidthSpace;";
+    document.querySelectorAll('.notranslate').forEach((e) => {
+      e.innerHTML = '&ZeroWidthSpace;';
     });
   }, []);
+
+  const validationSchema = {
+    username: Validator.validate(loginRequest!.username, [
+      {
+        match: USERNAME_REGEX,
+        message: 'Please provide valid username!',
+      },
+      {
+        max: 16,
+        message: 'Maximum length is 16 characters!',
+      },
+    ]),
+    password: Validator.validate(loginRequest!.password, [
+      {
+        max: 50,
+        message: 'Maximum length is 50 characters!',
+      },
+      { match: '.*', message: 'This error will never appear!' },
+    ]),
+  };
 
   return (
     <>
@@ -46,46 +99,59 @@ const LoginPage = () => {
           item
           xs={12}
           sx={{
-            display: "flex",
-            justifyContent: "center",
+            display: 'flex',
+            justifyContent: 'center',
           }}
         >
-          <TextField
-            type={"text"}
-            placeholder="Username"
-            InputProps={{
+          <SecureTextField
+            testId="username-input"
+            value={loginRequest!.username}
+            entity={loginRequest}
+            setEntity={setLoginRequest}
+            propertyName="username"
+            dirtyProps={dirtyProps}
+            setDirtyProps={setDirtyProps}
+            validObj={validationSchema.username}
+            submitting={submitting}
+            disabled={submitting && formValid}
+            size="small"
+            inputProps={{
               startAdornment: (
                 <InputAdornment position="start">
                   <Person />
                 </InputAdornment>
               ),
             }}
-            variant="outlined"
-            size="small"
-            sx={{ width: "100%" }}
           />
         </Grid>
         <Grid
           item
           xs={12}
           sx={{
-            display: "flex",
-            justifyContent: "center",
+            display: 'flex',
+            justifyContent: 'center',
           }}
         >
-          <TextField
-            type={"password"}
-            placeholder="Password"
-            InputProps={{
+          <SecureTextField
+            testId="password-input"
+            type="password"
+            value={loginRequest!.password}
+            entity={loginRequest}
+            setEntity={setLoginRequest}
+            propertyName="password"
+            dirtyProps={dirtyProps}
+            setDirtyProps={setDirtyProps}
+            validObj={validationSchema.password}
+            submitting={submitting}
+            disabled={submitting && formValid}
+            size="small"
+            inputProps={{
               startAdornment: (
                 <InputAdornment position="start">
                   <Lock />
                 </InputAdornment>
               ),
             }}
-            variant="outlined"
-            size="small"
-            sx={{ width: "100%" }}
           />
         </Grid>
         <Grid item xs={12} sx={{ ml: 2 }}>
@@ -97,46 +163,83 @@ const LoginPage = () => {
             />
           </FormGroup>
         </Grid>
+      </Grid>
+      <Box
+        sx={{
+          position: 'fixed',
+          bottom: 15,
+          mr: 2,
+        }}
+      >
+        <Grid
+          columnGap={2}
+          rowGap={2}
+          container
+          columns={{ xs: 12 }}
+          sx={{
+            pl: 2,
+            pr: 2,
+          }}
+        >
+          <Grid item xs={12} sx={{ mt: 5 }}>
+            {loginFailed && (
+              <Box
+                sx={{
+                  color: '#ff6e63',
+                  textAlign: 'center',
+                  mb: 1,
+                }}
+              >
+                Invalid username or password!
+              </Box>
+            )}
 
-        <Grid item xs={12} sx={{ mt: 5 }}>
-          <Button
-            variant="contained"
-            sx={{ width: "100%", height: "70px", fontSize: 20 }}
-            onClick={() => {
-              // navigate("/main_window");
-              handleLogin();
+            <LoadingButton
+              sx={{
+                transition: 'transform 0.2s ease-out',
+                width: '100%',
+                height: '70px',
+                fontSize: 20,
+              }}
+              disabled={dirtyProps.length === 0}
+              loading={submitting && formValid}
+              loadingIndicator={
+                <div className="loader" style={{ width: 20, height: 20 }}></div>
+              }
+              variant="contained"
+              onClick={handleSubmit}
+            >
+              Login
+            </LoadingButton>
+          </Grid>
+          <Grid
+            item
+            xs={12}
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              mt: -0.5,
             }}
           >
-            Login
-          </Button>
+            <span style={{ fontSize: 14 }}>
+              <Link>Register a free account</Link> or <Link>Play as Guest</Link>
+            </span>
+          </Grid>
+          <Grid
+            item
+            xs={12}
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              mt: -1.5,
+            }}
+          >
+            <span style={{ fontSize: 14 }}>
+              <Link>Can't log in?</Link>
+            </span>
+          </Grid>
         </Grid>
-        <Grid
-          item
-          xs={12}
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            mt: -0.5,
-          }}
-        >
-          <span style={{ fontSize: 14 }}>
-            <Link>Register a free account</Link> or <Link>Play as Guest</Link>
-          </span>
-        </Grid>
-        <Grid
-          item
-          xs={12}
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            mt: -1.5,
-          }}
-        >
-          <span style={{ fontSize: 14 }}>
-            <Link>Can't log in?</Link>
-          </span>
-        </Grid>
-      </Grid>
+      </Box>
     </>
   );
 };

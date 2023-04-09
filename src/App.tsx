@@ -28,8 +28,8 @@ root.render(
           sx={{ marginTop: 5 }}
         >
           <Routes>
-            <Route path="/" element={<LoginPage />} />
-            <Route path="/main_window" element={<HomePage />} />
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<LoginPage />} />
             <Route path="/learn" element={<LearnPage />} />
             <Route path="/store" element={<StorePage />} />
           </Routes>

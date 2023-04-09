@@ -1,31 +1,30 @@
-import { Button, Grid } from "@mui/material";
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import ChatList from "../chat/ChatList";
-import DownloadBtn from "./download/DownloadBtn";
+import { Box, Button, Grid } from '@mui/material';
+import { useContext, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import ChatList from '../chat/ChatList';
+import DownloadBtn from './download/DownloadBtn';
+import AuthContext from '../context/AuthContext';
 
 const HomePage = () => {
   const navigate = useNavigate();
-
-  useEffect(() => {
-    window.API.setWindowSize(1280, 832);
-  }, []);
+  const { user, logout } = useContext(AuthContext);
+  console.log(user);
 
   return (
     <Grid columnGap={2} container>
       <Grid item xs>
-        <Button
-          variant="contained"
-          onClick={() => {
-            navigate(-1);
-          }}
-        >
-          Back
-        </Button>
+        {user?.username}
       </Grid>
-      <Grid item style={{ width: "300px" }}>
+      <Grid item style={{ width: '300px' }}>
+        <Grid justifyContent={'flex-end'} columnGap={2} container>
+          <Grid item>
+            <Button variant="contained" onClick={logout}>
+              Logout
+            </Button>
+          </Grid>
+        </Grid>
         <ChatList />
-        <DownloadBtn />
+        {/* <DownloadBtn /> */}
       </Grid>
     </Grid>
   );

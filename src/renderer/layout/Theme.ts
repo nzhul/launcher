@@ -72,7 +72,7 @@ const initializeTheme = () => {
             ) {
               styles = {
                 backgroundColor: "#717171!important",
-                color: "#ABABAB!important",
+                // color: "#ABABAB!important", // Uncomment if you want to see the color of disabled buttons
               };
             }
 
