@@ -1,6 +1,7 @@
 import { PauseInfo } from '../models/PauseInfo';
 import { InstallInfo } from '../models/InstallInfo';
 import { AppConfig } from '../models/infrastructure/AppConfig';
+import { LoginRequest } from '../models/users/loginRequest';
 
 export {};
 
@@ -46,6 +47,9 @@ declare global {
         minHeight: number,
       ) => void;
       getEnvVariables: () => Promise<AppConfig>;
+      storeCredentials: (credentials: LoginRequest) => void;
+      getCredentials: () => Promise<LoginRequest>;
+      clearCredentials: () => void;
     };
   }
 }

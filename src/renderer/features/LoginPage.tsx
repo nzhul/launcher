@@ -28,7 +28,9 @@ const emptyLoginRequest: LoginRequest = {
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, setUserInfo } = useContext(AuthContext);
+  const { setUserInfo } = useContext(AuthContext);
+
+  const rememberMeDefault = localStorage.getItem('remember-me');
 
   const [loginRequest, setLoginRequest] =
     useState<LoginRequest>(emptyLoginRequest);
@@ -36,6 +38,9 @@ const LoginPage = () => {
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [formValid, setFormValid] = useState<boolean>(false);
   const [loginFailed, setLoginFailed] = useState<boolean>(false);
+  const [rememberMe, setRememberMe] = useState<boolean>(
+    JSON.parse(rememberMeDefault),
+  );
 
   const handleSubmit = async () => {
     const isValid = Object.values(validationSchema).every((x) => x.valid);
@@ -50,11 +55,32 @@ const LoginPage = () => {
       console.log(result);
       setUserInfo(result);
       setSubmitting(false);
+
+      if (rememberMe) {
+        window.API.storeCredentials(loginRequest);
+      } else {
+        window.API.clearCredentials();
+      }
+
       navigate('/');
     } catch (error) {
       setLoginFailed(true);
       setSubmitting(false);
       setDirtyProps([]);
+    }
+  };
+
+  const handleRememberMe = (e: any) => {
+    localStorage.setItem('remember-me', e.target.checked);
+    setRememberMe(e.target.checked);
+  };
+
+  const loadCredsAsync = async () => {
+    const creds = await window.API.getCredentials();
+
+    if (creds) {
+      setLoginRequest(creds);
+      setDirtyProps(['username', 'password']);
     }
   };
 
@@ -64,6 +90,8 @@ const LoginPage = () => {
     document.querySelectorAll('.notranslate').forEach((e) => {
       e.innerHTML = '&ZeroWidthSpace;';
     });
+
+    loadCredsAsync();
   }, []);
 
   const validationSchema = {
@@ -157,7 +185,9 @@ const LoginPage = () => {
         <Grid item xs={12} sx={{ ml: 2 }}>
           <FormGroup>
             <FormControlLabel
-              control={<Checkbox defaultChecked />}
+              control={<Checkbox />}
+              checked={rememberMe}
+              onChange={handleRememberMe}
               label="Remember me?"
               sx={{ mt: -1 }}
             />

@@ -3,6 +3,7 @@
 
 import { contextBridge, ipcRenderer } from 'electron';
 import { AppConfig } from './models/infrastructure/AppConfig';
+import { LoginRequest } from './models/users/loginRequest';
 
 contextBridge.exposeInMainWorld('API', {
   getFiles: async (directoryName: string) => {
@@ -113,5 +114,14 @@ contextBridge.exposeInMainWorld('API', {
   },
   getEnvVariables: async (): Promise<AppConfig> => {
     return await ipcRenderer.invoke('get-env-variables');
+  },
+  storeCredentials: (credentials: LoginRequest) => {
+    ipcRenderer.send('store-credentials', credentials);
+  },
+  getCredentials: async (): Promise<LoginRequest> => {
+    return await ipcRenderer.invoke('get-credentials');
+  },
+  clearCredentials: () => {
+    ipcRenderer.send('clear-credentials');
   },
 });

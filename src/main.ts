@@ -10,6 +10,12 @@ import { PauseInfo } from './models/PauseInfo';
 import { InstallInfo } from './models/InstallInfo';
 import { extractVersion } from './common/utils';
 import { AppConfig } from './models/infrastructure/AppConfig';
+import {
+  clearCredentials,
+  getCredentials,
+  storeCredentials,
+} from './main/store';
+import { LoginRequest } from './models/users/loginRequest';
 
 // import * as dotenv from "dotenv";
 // dotenv.config({ path: ".env.development" });
@@ -528,6 +534,26 @@ ipcMain.handle('get-env-variables', async (): Promise<AppConfig> => {
   return new Promise((resolve, reject) => {
     resolve(appConfig);
   });
+});
+
+ipcMain.on('store-credentials', (event, credentials: LoginRequest) => {
+  storeCredentials(credentials);
+});
+
+ipcMain.handle('get-credentials', async (): Promise<LoginRequest> => {
+  return new Promise((resolve, reject) => {
+    const credentials = getCredentials();
+
+    if (credentials) {
+      resolve(credentials);
+    } else {
+      resolve(undefined);
+    }
+  });
+});
+
+ipcMain.on('clear-credentials', (event) => {
+  clearCredentials();
 });
 
 // --- main.ts common
