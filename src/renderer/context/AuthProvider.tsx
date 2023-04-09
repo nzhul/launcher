@@ -45,12 +45,7 @@ const AuthProvider: React.FC<{ children: any }> = ({ children }) => {
     const userInfo: LoginResult = JSON.parse(userInfoString);
 
     if (tokenExpired(userInfo.tokenString)) {
-      setUserInfo({
-        tokenString: undefined,
-        user: undefined,
-      });
-
-      navigate('/login');
+      logout();
     } else {
       window.API.setWindowSize(1280, 832, true, 1000, 640);
       navigate('/');
