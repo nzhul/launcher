@@ -27,7 +27,7 @@ const requests = {
 
 const Users = {
   login: (loginRequest: LoginRequest): Promise<LoginResult> =>
-    requests.post("/api/auth/login", loginRequest),
+    requests.post("/auth/login", loginRequest),
 };
 
 export default {
