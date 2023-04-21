@@ -37,7 +37,7 @@ const AuthProvider: React.FC<{ children: any }> = ({ children }) => {
     const userInfoString = localStorage.getItem('user-info');
 
     if (!userInfoString) {
-      window.API.setWindowSize(365, 508, false, 365, 508);
+      window.API.setWindowSize(365, 508, true, 365, 508);
       navigate('/login');
       return;
     }

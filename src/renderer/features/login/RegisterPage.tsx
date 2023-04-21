@@ -1,87 +1,38 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import Person from '@mui/icons-material/Person';
 import Lock from '@mui/icons-material/Lock';
-import {
-  Box,
-  Checkbox,
-  FormControlLabel,
-  FormGroup,
-  Grid,
-  InputAdornment,
-  Link,
-  TextField,
-} from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import agent from '../../api/agent';
-import { useContext, useEffect, useState } from 'react';
+import Email from '@mui/icons-material/Email';
 import LoadingButton from '@mui/lab/LoadingButton';
-import SecureTextField from '../common/SecureTextField';
-import { LoginRequest } from '../../models/users/loginRequest';
-import Validator from '../../common/utils';
-import AuthContext from '../context/AuthContext';
+import { Grid, InputAdornment, Box, Link } from '@mui/material';
+import SecureTextField from '../../common/SecureTextField';
+import { RegisterRequest } from '../../../models/users/registerRequest';
+import { useEffect, useState } from 'react';
+import Validator from '../../../common/utils';
+import { useNavigate } from 'react-router-dom';
 
 const USERNAME_REGEX = '^[a-zA-Z0-9_–-\\s&()\\.,/]*$';
+const EMAIL_REGEX =
+  '^(?("")("".+?(?<!\\)""@)|(([0-9a-z]((\\.(?!\\.))|[-!#\\$%&\\*\\+/=\\?\\^`\\{\\}\\|~\\w])*)(?<=[-_0-9a-z])@))(?(\\[)(\\[(\\d{1,3}\\.){3}\\d{1,3}\\])|(([0-9a-z][-0-9a-z]*[0-9a-z]*\\.)+[a-z0-9][\\-a-z0-9]{0,22}[a-z0-9]))$';
 
-const emptyLoginRequest: LoginRequest = {
+const emptyRegisterRequest: RegisterRequest = {
   username: '',
+  email: '',
   password: '',
+  confirmPassword: '',
 };
 
-const LoginPage = () => {
+const RegisterPage = () => {
   const navigate = useNavigate();
-  const { setUserInfo } = useContext(AuthContext);
 
-  const rememberMeDefault = localStorage.getItem('remember-me');
-
-  const [loginRequest, setLoginRequest] =
-    useState<LoginRequest>(emptyLoginRequest);
+  const [registerRequest, setRegisterRequest] =
+    useState<RegisterRequest>(emptyRegisterRequest);
   const [dirtyProps, setDirtyProps] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [formValid, setFormValid] = useState<boolean>(false);
-  const [loginFailed, setLoginFailed] = useState<boolean>(false);
-  const [rememberMe, setRememberMe] = useState<boolean>(
-    JSON.parse(rememberMeDefault),
-  );
+  const [submitFailed, setSubmitFailed] = useState<boolean>(false);
 
   const handleSubmit = async () => {
-    const isValid = Object.values(validationSchema).every((x) => x.valid);
-    setFormValid(isValid);
-
-    setSubmitting(true);
-    setLoginFailed(false);
-    if (!isValid) return;
-
-    try {
-      const result = await agent.Users.login(loginRequest);
-      console.log(result);
-      setUserInfo(result);
-      setSubmitting(false);
-
-      if (rememberMe) {
-        window.API.storeCredentials(loginRequest);
-      } else {
-        window.API.clearCredentials();
-      }
-
-      navigate('/');
-    } catch (error) {
-      setLoginFailed(true);
-      setSubmitting(false);
-      setDirtyProps([]);
-    }
-  };
-
-  const handleRememberMe = (e: any) => {
-    localStorage.setItem('remember-me', e.target.checked);
-    setRememberMe(e.target.checked);
-  };
-
-  const loadCredsAsync = async () => {
-    const creds = await window.API.getCredentials();
-
-    if (creds) {
-      setLoginRequest(creds);
-      setDirtyProps(['username', 'password']);
-    }
+    console.log('Submit register form!');
   };
 
   useEffect(() => {
@@ -90,12 +41,10 @@ const LoginPage = () => {
     document.querySelectorAll('.notranslate').forEach((e) => {
       e.innerHTML = '&ZeroWidthSpace;';
     });
-
-    loadCredsAsync();
   }, []);
 
   const validationSchema = {
-    username: Validator.validate(loginRequest!.username, [
+    username: Validator.validate(registerRequest!.username, [
       {
         match: USERNAME_REGEX,
         message: 'Please provide valid username!',
@@ -105,13 +54,32 @@ const LoginPage = () => {
         message: 'Maximum length is 16 characters!',
       },
     ]),
-    password: Validator.validate(loginRequest!.password, [
+    email: Validator.validate(registerRequest!.email, [
+      {
+        match: EMAIL_REGEX,
+        message: 'Please provide valid email!',
+      },
+      {
+        max: 50,
+        message: 'Maximum length is 50 characters!',
+      },
+    ]),
+    password: Validator.validate(registerRequest!.password, [
       {
         max: 50,
         message: 'Maximum length is 50 characters!',
       },
       { match: '.*', message: 'This error will never appear!' },
     ]),
+    confirmPassword: Validator.validate(registerRequest!.confirmPassword, [
+      {
+        max: 50,
+        message: 'Maximum length is 50 characters!',
+      },
+      { match: '.*', message: 'This error will never appear!' },
+    ]),
+    // TODO: Add matching validator that can be used to compare both passwords!
+    // Add it to the confirmPassword field.
   };
 
   return (
@@ -121,7 +89,7 @@ const LoginPage = () => {
         rowGap={2}
         container
         columns={{ xs: 12 }}
-        sx={{ mt: 12, pl: 2, pr: 2 }}
+        sx={{ mt: 8, pl: 2, pr: 2 }}
       >
         <Grid
           item
@@ -133,9 +101,9 @@ const LoginPage = () => {
         >
           <SecureTextField
             testId="username-input"
-            value={loginRequest!.username}
-            entity={loginRequest}
-            setEntity={setLoginRequest}
+            value={registerRequest!.username}
+            entity={registerRequest}
+            setEntity={setRegisterRequest}
             propertyName="username"
             dirtyProps={dirtyProps}
             setDirtyProps={setDirtyProps}
@@ -161,11 +129,40 @@ const LoginPage = () => {
           }}
         >
           <SecureTextField
+            testId="email-input"
+            value={registerRequest!.email}
+            entity={registerRequest}
+            setEntity={setRegisterRequest}
+            propertyName="email"
+            dirtyProps={dirtyProps}
+            setDirtyProps={setDirtyProps}
+            validObj={validationSchema.email}
+            submitting={submitting}
+            disabled={submitting && formValid}
+            size="small"
+            inputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Email />
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Grid>
+        <Grid
+          item
+          xs={12}
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+          }}
+        >
+          <SecureTextField
             testId="password-input"
             type="password"
-            value={loginRequest!.password}
-            entity={loginRequest}
-            setEntity={setLoginRequest}
+            value={registerRequest!.password}
+            entity={registerRequest}
+            setEntity={setRegisterRequest}
             propertyName="password"
             dirtyProps={dirtyProps}
             setDirtyProps={setDirtyProps}
@@ -182,20 +179,40 @@ const LoginPage = () => {
             }}
           />
         </Grid>
-        <Grid item xs={12} sx={{ ml: 2 }}>
-          <FormGroup>
-            <FormControlLabel
-              control={<Checkbox />}
-              checked={rememberMe}
-              onChange={handleRememberMe}
-              label="Remember me?"
-              sx={{ mt: -1 }}
-            />
-          </FormGroup>
+        <Grid
+          item
+          xs={12}
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+          }}
+        >
+          <SecureTextField
+            testId="confirmPassword-input"
+            type="password"
+            value={registerRequest!.confirmPassword}
+            entity={registerRequest}
+            setEntity={setRegisterRequest}
+            propertyName="confirmPassword"
+            dirtyProps={dirtyProps}
+            setDirtyProps={setDirtyProps}
+            validObj={validationSchema.confirmPassword}
+            submitting={submitting}
+            disabled={submitting && formValid}
+            size="small"
+            inputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Lock />
+                </InputAdornment>
+              ),
+            }}
+          />
         </Grid>
       </Grid>
       <Box
         sx={{
+          width: '333px',
           position: 'fixed',
           bottom: 15,
           mr: 2,
@@ -212,7 +229,7 @@ const LoginPage = () => {
           }}
         >
           <Grid item xs={12} sx={{ mt: 5 }}>
-            {loginFailed && (
+            {submitFailed && (
               <Box
                 sx={{
                   color: '#ff6e63',
@@ -239,7 +256,7 @@ const LoginPage = () => {
               variant="contained"
               onClick={handleSubmit}
             >
-              Login
+              Register
             </LoadingButton>
           </Grid>
           <Grid
@@ -248,24 +265,17 @@ const LoginPage = () => {
             sx={{
               display: 'flex',
               justifyContent: 'center',
-              mt: -0.5,
+              mt: 0,
             }}
           >
             <span style={{ fontSize: 14 }}>
-              <Link>Register a free account</Link> or <Link>Play as Guest</Link>
-            </span>
-          </Grid>
-          <Grid
-            item
-            xs={12}
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              mt: -1.5,
-            }}
-          >
-            <span style={{ fontSize: 14 }}>
-              <Link>Can't log in?</Link>
+              <Link
+                onClick={() => {
+                  navigate('/login');
+                }}
+              >
+                Back to login
+              </Link>
             </span>
           </Grid>
         </Grid>
@@ -274,4 +284,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default RegisterPage;
