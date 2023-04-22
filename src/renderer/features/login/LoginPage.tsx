@@ -9,7 +9,6 @@ import {
   Grid,
   InputAdornment,
   Link,
-  TextField,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import agent from '../../../api/agent';
@@ -51,23 +50,24 @@ const LoginPage = () => {
     setSubmitFailed(false);
     if (!isValid) return;
 
-    try {
-      const result = await agent.Users.login(loginRequest);
-      console.log(result);
-      setUserInfo(result);
-      setSubmitting(false);
+    const result = await agent.Users.login(loginRequest);
 
-      if (rememberMe) {
-        window.API.storeCredentials(loginRequest);
-      } else {
-        window.API.clearCredentials();
-      }
-
-      navigate('/');
-    } catch (error) {
+    if (!result.isSuccess) {
       setSubmitFailed(true);
       setSubmitting(false);
+      return;
     }
+
+    setUserInfo(result.data);
+    setSubmitting(false);
+
+    if (rememberMe) {
+      window.API.storeCredentials(loginRequest);
+    } else {
+      window.API.clearCredentials();
+    }
+
+    navigate('/');
   };
 
   const handleRememberMe = (e: any) => {

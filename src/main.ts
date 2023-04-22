@@ -101,7 +101,11 @@ app.on('ready', () => {
     mainWindow.once('ready-to-show', () => {
       setTimeout(() => {
         splashWindow.destroy();
-        mainWindow.show();
+        setTimeout(() => {
+          // this duplicated settimeout fixes strange bug when app loads the main windows is not focused.
+          mainWindow.show();
+          mainWindow.focus();
+        }, 200);
       }, 1000);
     });
   }
@@ -527,6 +531,9 @@ ipcMain.on(
     const y = Math.floor((workAreaSize.height - mainWindow.getSize()[1]) / 2);
 
     mainWindow.setPosition(workArea.x + x, workArea.y + y);
+    mainWindow.setAlwaysOnTop(true);
+    mainWindow.setAlwaysOnTop(false);
+    app.focus();
   },
 );
 

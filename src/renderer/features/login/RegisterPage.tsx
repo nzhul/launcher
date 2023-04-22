@@ -9,10 +9,10 @@ import { RegisterRequest } from '../../../models/users/registerRequest';
 import { useEffect, useState } from 'react';
 import Validator from '../../../common/utils';
 import { useNavigate } from 'react-router-dom';
+import agent from '../../../api/agent';
 
-const USERNAME_REGEX = '^[a-zA-Z0-9_–-\\s&()\\.,/]*$';
-const EMAIL_REGEX =
-  '^(?("")("".+?(?<!\\)""@)|(([0-9a-z]((\\.(?!\\.))|[-!#\\$%&\\*\\+/=\\?\\^`\\{\\}\\|~\\w])*)(?<=[-_0-9a-z])@))(?(\\[)(\\[(\\d{1,3}\\.){3}\\d{1,3}\\])|(([0-9a-z][-0-9a-z]*[0-9a-z]*\\.)+[a-z0-9][\\-a-z0-9]{0,22}[a-z0-9]))$';
+const USERNAME_REGEX = '^[A-Za-z]{3,16}$';
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 const emptyRegisterRequest: RegisterRequest = {
   username: '',
@@ -29,10 +29,30 @@ const RegisterPage = () => {
   const [dirtyProps, setDirtyProps] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [formValid, setFormValid] = useState<boolean>(false);
-  const [submitFailed, setSubmitFailed] = useState<boolean>(false);
+  const [serverError, setServerError] = useState<string>();
 
   const handleSubmit = async () => {
-    console.log('Submit register form!');
+    const isValid = Object.values(validationSchema).every((x) => x.valid);
+    setFormValid(isValid);
+
+    setSubmitting(true);
+    setServerError('');
+    if (!isValid) return;
+
+    const response = await agent.Users.register(registerRequest);
+
+    if (response.isSuccess) {
+      navigate('/register-success');
+    } else {
+      console.log(response);
+      if (response.error.error.code === 'UserAlreadyExists') {
+        setServerError('Username or email already taken!');
+      } else {
+        setServerError('Server error!');
+      }
+    }
+
+    setSubmitting(false);
   };
 
   useEffect(() => {
@@ -66,20 +86,31 @@ const RegisterPage = () => {
     ]),
     password: Validator.validate(registerRequest!.password, [
       {
-        max: 50,
-        message: 'Maximum length is 50 characters!',
+        min: 4,
+        message: 'Mimimum password length is 4!',
       },
-      { match: '.*', message: 'This error will never appear!' },
-    ]),
-    confirmPassword: Validator.validate(registerRequest!.confirmPassword, [
       {
         max: 50,
         message: 'Maximum length is 50 characters!',
       },
       { match: '.*', message: 'This error will never appear!' },
     ]),
-    // TODO: Add matching validator that can be used to compare both passwords!
-    // Add it to the confirmPassword field.
+    confirmPassword: Validator.validate(
+      registerRequest!.confirmPassword,
+      [
+        {
+          min: 4,
+          message: 'Mimimum password length is 4!',
+        },
+        {
+          max: 50,
+          message: 'Maximum length is 50 characters!',
+        },
+        { match: '.*', message: 'This error will never appear!' },
+        { compare: '_', message: 'Passwords do not match!' },
+      ],
+      registerRequest!.password,
+    ),
   };
 
   return (
@@ -229,7 +260,7 @@ const RegisterPage = () => {
           }}
         >
           <Grid item xs={12} sx={{ mt: 5 }}>
-            {submitFailed && (
+            {serverError && (
               <Box
                 sx={{
                   color: '#ff6e63',
@@ -237,7 +268,7 @@ const RegisterPage = () => {
                   mb: 1,
                 }}
               >
-                Invalid username or password!
+                {serverError}
               </Box>
             )}
 

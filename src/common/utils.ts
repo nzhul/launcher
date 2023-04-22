@@ -1,6 +1,5 @@
 import * as _ from 'underscore';
 
-
 export function extractVersion(fileName: string): number {
   return parseInt(fileName.match(/-v(\d+)\.zip$/)[1]);
 }
@@ -8,12 +7,14 @@ export function extractVersion(fileName: string): number {
 const validate = (
   string: string,
   ruleOverrides?: { [key: string]: any; message: string }[],
+  compareString?: string,
 ): { valid: boolean; message: string } => {
   const rules = [
     { required: true, message: 'Required!' },
     { min: 3, message: 'Minimum length is 3 characters!' },
     { max: 100, message: `Maximum length is 100 characters!` },
     { match: '^[a-zA-Z0-9_-]*$', message: 'Invalid value!' },
+    { compare: '_', message: 'Values do not match!' },
   ] as { [key: string]: any; message: string }[];
 
   if (ruleOverrides) {
@@ -72,6 +73,15 @@ const validate = (
     }
   }
 
+  if (compareString) {
+    if (string !== compareString) {
+      const compareRule = _.find(rules, (rule) =>
+        Object.prototype.hasOwnProperty.call(rule, 'compare'),
+      ) as { match: string; message: string };
+      return { valid: false, message: compareRule.message };
+    }
+  }
+
   return { valid: true, message: '' };
 };
 
@@ -79,7 +89,8 @@ const Validator = {
   validate: (
     string: string,
     ruleOverrides?: { [key: string]: any; message: string }[],
-  ) => validate(string, ruleOverrides),
+    compareString?: string,
+  ) => validate(string, ruleOverrides, compareString),
 };
 
 const generateURL = (to: string) => {
