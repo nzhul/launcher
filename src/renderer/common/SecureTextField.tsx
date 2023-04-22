@@ -77,7 +77,7 @@ const SecureTextField: React.FC<{
           borderColor: '#ff6e63',
         },
         '& fieldset': { borderRadius: 0 },
-        '& .MuiFormHelperText-root.Mui-error': { color: '#ff6e63' },
+        '& .MuiFormHelperText-root.Mui-error': { color: '#ff6e63', mb: -1.5 },
         ...sx,
       }}
       InputProps={inputProps}

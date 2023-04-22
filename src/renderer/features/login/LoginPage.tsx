@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import Person from '@mui/icons-material/Person';
 import Lock from '@mui/icons-material/Lock';
 import {
@@ -8,16 +9,15 @@ import {
   Grid,
   InputAdornment,
   Link,
-  TextField,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import agent from '../../api/agent';
+import agent from '../../../api/agent';
 import { useContext, useEffect, useState } from 'react';
 import LoadingButton from '@mui/lab/LoadingButton';
-import SecureTextField from '../common/SecureTextField';
-import { LoginRequest } from '../../models/users/loginRequest';
-import Validator from '../../common/utils';
-import AuthContext from '../context/AuthContext';
+import SecureTextField from '../../common/SecureTextField';
+import { LoginRequest } from '../../../models/users/loginRequest';
+import Validator from '../../../common/utils';
+import AuthContext from '../../context/AuthContext';
 
 const USERNAME_REGEX = '^[a-zA-Z0-9_–-\\s&()\\.,/]*$';
 
@@ -37,7 +37,7 @@ const LoginPage = () => {
   const [dirtyProps, setDirtyProps] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [formValid, setFormValid] = useState<boolean>(false);
-  const [loginFailed, setLoginFailed] = useState<boolean>(false);
+  const [submitFailed, setSubmitFailed] = useState<boolean>(false);
   const [rememberMe, setRememberMe] = useState<boolean>(
     JSON.parse(rememberMeDefault),
   );
@@ -47,27 +47,27 @@ const LoginPage = () => {
     setFormValid(isValid);
 
     setSubmitting(true);
-    setLoginFailed(false);
+    setSubmitFailed(false);
     if (!isValid) return;
 
-    try {
-      const result = await agent.Users.login(loginRequest);
-      console.log(result);
-      setUserInfo(result);
-      setSubmitting(false);
+    const result = await agent.Users.login(loginRequest);
 
-      if (rememberMe) {
-        window.API.storeCredentials(loginRequest);
-      } else {
-        window.API.clearCredentials();
-      }
-
-      navigate('/');
-    } catch (error) {
-      setLoginFailed(true);
+    if (!result.isSuccess) {
+      setSubmitFailed(true);
       setSubmitting(false);
-      setDirtyProps([]);
+      return;
     }
+
+    setUserInfo(result.data);
+    setSubmitting(false);
+
+    if (rememberMe) {
+      window.API.storeCredentials(loginRequest);
+    } else {
+      window.API.clearCredentials();
+    }
+
+    navigate('/');
   };
 
   const handleRememberMe = (e: any) => {
@@ -196,6 +196,7 @@ const LoginPage = () => {
       </Grid>
       <Box
         sx={{
+          width: '333px',
           position: 'fixed',
           bottom: 15,
           mr: 2,
@@ -212,7 +213,7 @@ const LoginPage = () => {
           }}
         >
           <Grid item xs={12} sx={{ mt: 5 }}>
-            {loginFailed && (
+            {submitFailed && (
               <Box
                 sx={{
                   color: '#ff6e63',
@@ -252,7 +253,14 @@ const LoginPage = () => {
             }}
           >
             <span style={{ fontSize: 14 }}>
-              <Link>Register a free account</Link> or <Link>Play as Guest</Link>
+              <Link
+                onClick={() => {
+                  navigate('/register');
+                }}
+              >
+                Register a free account
+              </Link>{' '}
+              or <Link>Play as Guest</Link>
             </span>
           </Grid>
           <Grid
