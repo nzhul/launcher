@@ -1,6 +1,14 @@
 process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true';
 
-import { app, BrowserWindow, dialog, ipcMain, screen, shell } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  dialog,
+  ipcMain,
+  screen,
+  session,
+  shell,
+} from 'electron';
 import fs from 'fs';
 import path from 'path';
 import fetch from 'node-fetch';
@@ -59,6 +67,19 @@ const createWindow = (): BrowserWindow => {
   if (process.env.NODE_ENV === 'development') {
     // mainWindow.webContents.openDevTools();
   }
+
+  session.defaultSession.protocol.registerFileProtocol(
+    'static',
+    (request, callback) => {
+      const fileUrl = request.url.replace('static://', '');
+      const filePath = path.join(
+        app.getAppPath(),
+        '.webpack/renderer',
+        fileUrl,
+      );
+      callback(filePath);
+    },
+  );
 
   return mainWindow;
 };
@@ -531,9 +552,9 @@ ipcMain.on(
     const y = Math.floor((workAreaSize.height - mainWindow.getSize()[1]) / 2);
 
     mainWindow.setPosition(workArea.x + x, workArea.y + y);
-    mainWindow.setAlwaysOnTop(true);
-    mainWindow.setAlwaysOnTop(false);
-    app.focus();
+    // mainWindow.setAlwaysOnTop(true);
+    // mainWindow.setAlwaysOnTop(false);
+    // app.focus();
   },
 );
 

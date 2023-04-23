@@ -24,11 +24,7 @@ root.render(
       <AuthProvider>
         <NavBar />
 
-        <Container
-          data-testid="page-container"
-          maxWidth={false}
-          sx={{ marginTop: 5 }}
-        >
+        <Container data-testid="page-container" maxWidth={false}>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />

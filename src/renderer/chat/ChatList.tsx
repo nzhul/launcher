@@ -1,14 +1,14 @@
-import Box from "@mui/material/Box";
+import Box from '@mui/material/Box';
 
 const ChatList = () => {
   return (
     <Box
       sx={{
-        minHeight: "350px",
-        border: "1px solid gray",
+        minHeight: '350px',
+        mt: 1.5,
       }}
     >
-      Chatlist
+      <img src="static://assetsrenderer/launcher-chat.png" alt="" />
     </Box>
   );
 };

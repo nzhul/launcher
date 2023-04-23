@@ -1,6 +1,15 @@
+import { Box } from '@mui/material';
+
 const StorePage = () => {
-    return <>Store Page</>;
-  };
-  
-  export default StorePage;
-  
+  return (
+    <Box
+      sx={{
+        mt: 5,
+      }}
+    >
+      Store Page
+    </Box>
+  );
+};
+
+export default StorePage;
