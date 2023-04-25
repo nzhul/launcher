@@ -17,7 +17,7 @@ const config: ForgeConfig = {
   makers: [
     new MakerSquirrel({
       authors: 'Damage Software',
-      description: 'Damage Software ',
+      description: 'Ancient Warriors Game Launcher',
       iconUrl:
         'https://raw.githubusercontent.com/nzhul/launcher/master/src/assets/aw-256.ico',
       setupIcon: './src/assets/aw-256.ico',
