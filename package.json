@@ -1,7 +1,7 @@
 {
-  "name": "launcher",
-  "productName": "launcher",
-  "version": "1.0.0",
+  "name": "damagesoftware-launcher",
+  "productName": "Damage Software Launcher",
+  "version": "1.0.1",
   "description": "My Electron application description",
   "main": ".webpack/main",
   "scripts": {
