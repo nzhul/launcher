@@ -11,7 +11,7 @@ import { rendererConfig } from './webpack.renderer.config';
 const config: ForgeConfig = {
   packagerConfig: {
     extraResource: ['./src/assets/app.json'],
-    icon: './src/assets/damage-software-256',
+    icon: './src/assets/aw-256',
   },
   rebuildConfig: {},
   makers: [
@@ -19,8 +19,8 @@ const config: ForgeConfig = {
       authors: 'Damage Software',
       description: 'Damage Software ',
       iconUrl:
-        'https://raw.githubusercontent.com/nzhul/launcher/master/src/assets/damage-software-256.ico',
-      setupIcon: './src/assets/damage-software-256.ico',
+        'https://raw.githubusercontent.com/nzhul/launcher/master/src/assets/aw-256.ico',
+      setupIcon: './src/assets/aw-256.ico',
     }),
     new MakerZIP({}, ['darwin']),
     new MakerRpm({}),
