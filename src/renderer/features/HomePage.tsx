@@ -1,25 +1,16 @@
-import {
-  Avatar,
-  Box,
-  Button,
-  Grid,
-  IconButton,
-  Typography,
-} from '@mui/material';
+import { Avatar, Box, Grid, IconButton, Typography } from '@mui/material';
 import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ChatList from '../chat/ChatList';
 import AuthContext from '../context/AuthContext';
 import FeedItem from './news/FeedItem';
-import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import Settings from '@mui/icons-material/Settings';
 import DownloadBtn from './download/DownloadBtn';
+import ProfileSettingsBtn from './profile/ProfileSettingsBtn';
 
 const HomePage = () => {
   const navigate = useNavigate();
   const { user, logout } = useContext(AuthContext);
-
-  console.log(window.innerHeight);
 
   return (
     <Grid columnGap={2} container>
@@ -95,20 +86,7 @@ const HomePage = () => {
             </Box>
           </Grid>
           <Grid item xs={5}>
-            <IconButton
-              sx={{
-                position: 'relative',
-                float: 'right',
-                mt: '6px',
-                color: 'rgba(255,255,255,0.5)',
-                backgroundColor: 'none',
-                '&:hover': {
-                  color: 'white',
-                },
-              }}
-            >
-              <Settings sx={{ fontSize: 30 }} />
-            </IconButton>
+            <ProfileSettingsBtn />
           </Grid>
         </Grid>
         <ChatList />

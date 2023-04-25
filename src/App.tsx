@@ -11,6 +11,8 @@ import NavBar from './renderer/layout/Navbar';
 import { initializeTheme } from './renderer/layout/Theme';
 import RegisterPage from './renderer/features/login/RegisterPage';
 import RegisterSuccessPage from './renderer/features/login/RegisterSuccessPage';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement,
@@ -35,6 +37,7 @@ root.render(
           </Routes>
         </Container>
       </AuthProvider>
+      <ToastContainer position="bottom-center" theme="dark" />
     </ThemeProvider>
   </HashRouter>,
 );

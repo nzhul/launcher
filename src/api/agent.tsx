@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import axios, { AxiosError, AxiosResponse } from 'axios';
+import { toast } from 'react-toastify';
 import { LoginResult } from '../models/users/loginResult';
 import { LoginRequest } from '../models/users/loginRequest';
 import { RegisterRequest } from '../models/users/registerRequest';
@@ -14,6 +16,42 @@ loadEnvVars().then((envVars) => {
   axios.defaults.baseURL = envVars.apiUrl;
 });
 
+axios.interceptors.request.use(
+  function (config) {
+    const token = window.localStorage.getItem('jwt');
+
+    if (token) {
+      config.headers!.Authorization = 'Bearer ' + token;
+    }
+
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  },
+);
+
+//dido: change ms = 2000 if you want to fake API delay when developing locally
+function sleep(ms = 0): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+axios.interceptors.response.use(async (response) => {
+  // add artificial delay for dev env
+  if (process.env.NODE_ENV === 'development') {
+    await sleep();
+  }
+  return response;
+});
+
+axios.interceptors.response.use(undefined, async (error) => {
+  if (error.message === 'Network Error' && !error.response) {
+    toast.error('Network error - make sure API is running!');
+  }
+
+  throw error.response;
+});
+
 const responseBody = (response: AxiosResponse) => {
   return {
     data: response.data,
@@ -23,11 +61,24 @@ const responseBody = (response: AxiosResponse) => {
 };
 
 const handleError = (error: AxiosError) => {
+  if (!error) {
+    return {
+      data: undefined,
+      status: 500,
+      isSuccess: false,
+      error: {
+        error: {
+          message: 'Server error!',
+        },
+      },
+    } as unknown as HttpResponse<any>;
+  }
+
   return {
     data: undefined,
-    status: error.response.status,
+    status: error.status,
     isSuccess: error.status >= 200 && error.status <= 299,
-    error: error.response.data,
+    error: (error as any).data,
   } as HttpResponse<any>;
 };
 

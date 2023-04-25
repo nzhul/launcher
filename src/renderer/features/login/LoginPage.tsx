@@ -37,7 +37,7 @@ const LoginPage = () => {
   const [dirtyProps, setDirtyProps] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [formValid, setFormValid] = useState<boolean>(false);
-  const [submitFailed, setSubmitFailed] = useState<boolean>(false);
+  const [serverError, setServerError] = useState<string>();
   const [rememberMe, setRememberMe] = useState<boolean>(
     JSON.parse(rememberMeDefault),
   );
@@ -47,18 +47,18 @@ const LoginPage = () => {
     setFormValid(isValid);
 
     setSubmitting(true);
-    setSubmitFailed(false);
+    setServerError('');
     if (!isValid) return;
 
-    const result = await agent.Users.login(loginRequest);
+    const response = await agent.Users.login(loginRequest);
 
-    if (!result.isSuccess) {
-      setSubmitFailed(true);
+    if (!response.isSuccess) {
+      setServerError(response.error.error.message);
       setSubmitting(false);
       return;
     }
 
-    setUserInfo(result.data);
+    setUserInfo(response.data);
     setSubmitting(false);
 
     if (rememberMe) {
@@ -213,7 +213,7 @@ const LoginPage = () => {
           }}
         >
           <Grid item xs={12} sx={{ mt: 5 }}>
-            {submitFailed && (
+            {serverError && (
               <Box
                 sx={{
                   color: '#ff6e63',
@@ -221,7 +221,7 @@ const LoginPage = () => {
                   mb: 1,
                 }}
               >
-                Invalid username or password!
+                {serverError}
               </Box>
             )}
 
