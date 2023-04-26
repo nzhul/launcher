@@ -34,6 +34,7 @@ const config: ForgeConfig = {
           owner: 'nzhul',
           name: 'ancient-warriors-launcher',
         },
+        draft: true,
       },
     },
   ],
