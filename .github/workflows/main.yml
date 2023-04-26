@@ -19,6 +19,6 @@ jobs:
         with:
           node-version: 18
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --network-timeout=30000
       - name: Publish
         run: yarn run publish
