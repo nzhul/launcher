@@ -19,6 +19,26 @@ jobs:
         with:
           node-version: 18
       - name: Install dependencies
-        run: yarn install --network-timeout 1000000
-      - name: Publish
-        run: yarn run publish
+        run: yarn install --network-timeout 600000
+        
+        # dido: try to create release first by extracting the package version from package.json
+        # this will require me to change the version every time when I want new release
+        # what I can do is to check if the version has been changed.
+        # if yes > trigger the release
+        # version-checker: https://github.com/marketplace/actions/version-check
+        # get current release version: https://github.com/marketplace/actions/get-current-package-version
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1.0.0
+        with:
+          tag_name: v${{github.run_number}} # Replace with the desired tag name for the release
+          release_name: Release v${{github.run_number}} # Replace with the desired name for the release
+          body: |
+            Changes in this release:
+            - Add new feature (todo: resolve dynamically)
+            - Bug fixes
+          draft: false
+          prerelease: false
+
+      # - name: Publish
+      #   run: yarn run publish
