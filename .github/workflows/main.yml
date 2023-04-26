@@ -13,7 +13,10 @@ jobs:
       - uses: actions/setup-node@master
         with:
           node-version: 18
-      - name: install dependencies
+      - name: Install dependencies
         run: yarn install
-      - name: build
+      - name: Build
         run: yarn make
+      - name: Publish
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: yarn publish

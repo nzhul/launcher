@@ -26,6 +26,17 @@ const config: ForgeConfig = {
     new MakerRpm({}),
     new MakerDeb({}),
   ],
+  publishers: [
+    {
+      name: '@electron-forge/publisher-github',
+      config: {
+        repository: {
+          owner: 'nzhul',
+          name: 'ancient-warriors-launcher',
+        },
+      },
+    },
+  ],
   plugins: [
     new WebpackPlugin({
       devContentSecurityPolicy:
