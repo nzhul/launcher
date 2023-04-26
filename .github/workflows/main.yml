@@ -18,5 +18,4 @@ jobs:
       - name: Build
         run: yarn make
       - name: Publish
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: yarn publish
