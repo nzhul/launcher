@@ -22,5 +22,3 @@ jobs:
         run: yarn make
       - name: Publish
         run: yarn publish
-        env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
