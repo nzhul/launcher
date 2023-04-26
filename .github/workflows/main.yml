@@ -1,0 +1,19 @@
+name: Make and Publish to Github
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build_on_win:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@master
+        with:
+          node-version: 18
+      - name: install dependencies
+        run: yarn install
+      - name: build
+        run: yarn make
