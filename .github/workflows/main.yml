@@ -20,5 +20,7 @@ jobs:
           node-version: 18
       - name: Install dependencies
         run: yarn install
+      - name: Build
+        run: yarn make
       - name: Publish
         run: yarn run publish
