@@ -63,6 +63,47 @@ jobs:
           name: ancient-warriors-launcher-v${{needs.check-version.outputs.VERSION}}
           path: out/make/squirrel.windows/x64/ancient-warriors-launcher-${{needs.check-version.outputs.VERSION}} Setup.exe
 
+    outputs:
+      VERSION: ${{ needs.check-version.outputs.VERSION }}
+
+  create-release:
+    needs: build_on_win
+    name: Create Release 🚀
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ancient-warriors-launcher-v${{needs.build_on_win.outputs.VERSION}}
+          path: build-artifact
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: v${{needs.build_on_win.outputs.VERSION}}
+          release_name: Release v${{needs.build_on_win.outputs.VERSION}}
+          body: |
+            Changes in this release:
+            - Add new feature (todo: resolve dynamically)
+            - Bug fixes
+          draft: false
+          prerelease: false
+
+      - name: Upload Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: build-artifact/ancient-warriors-launcher-${{needs.check-version.outputs.VERSION}} Setup.exe
+          asset_name: ancient-warriors-launcher-${{needs.check-version.outputs.VERSION}} Setup.exe
+          asset_content_type: application/vnd.microsoft.portable-executable
+
 
     # steps:
     #   - uses: actions/checkout@v2
