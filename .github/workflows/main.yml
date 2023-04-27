@@ -61,7 +61,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: ancient-warriors-launcher-v${{needs.check-version.outputs.VERSION}}
-          path: out/make/squirrel.windows/x64/ancient-warriors-launcher-${{needs.check-version.outputs.VERSION}} Setup.exe
+          path: out/make/squirrel.windows/x64/Ancient Warriors Launcher-${{needs.check-version.outputs.VERSION}} Setup.exe
 
     outputs:
       VERSION: ${{ needs.check-version.outputs.VERSION }}
@@ -100,34 +100,6 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build-artifact/ancient-warriors-launcher-${{needs.build-on-win.outputs.VERSION}} Setup.exe
-          asset_name: ancient-warriors-launcher-${{needs.build-on-win.outputs.VERSION}} Setup.exe
+          asset_path: build-artifact/Ancient Warriors Launcher-${{needs.build-on-win.outputs.VERSION}} Setup.exe
+          asset_name: Ancient Warriors Launcher-${{needs.build-on-win.outputs.VERSION}} Setup.exe
           asset_content_type: application/vnd.microsoft.portable-executable
-
-
-    # steps:
-    #   - uses: actions/checkout@v2
-    #   - uses: actions/setup-node@master
-    #     with:
-    #       node-version: 18
-    #       cache: 'yarn'
-    #   - name: Install dependencies
-    #     run: yarn install --network-timeout 600000
-    #   - name: Make
-    #     run: yarn make
-
-
-
-      # - name: Create Release
-      #   if: steps.check.outputs.changed == 'true'
-      #   id: create_release
-      #   uses: actions/create-release@v1
-      #   with:
-      #     tag_name: v${{steps.check.outputs.version}}
-      #     release_name: Release v${{steps.check.outputs.version}}
-      #     body: |
-      #       Changes in this release:
-      #       - Add new feature (todo: resolve dynamically)
-      #       - Bug fixes
-      #     draft: false
-      #     prerelease: false
