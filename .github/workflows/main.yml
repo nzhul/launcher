@@ -8,6 +8,9 @@ on:
 permissions:
   contents: write
 
+env:
+  SHOULD_PUBLISH: 'false'
+
 jobs:
   create-release:
     runs-on: ubuntu-latest
@@ -32,6 +35,11 @@ jobs:
         if: steps.check.outputs.changed == 'true'
         run: 'echo "Version change found in commit ${{ steps.check.outputs.commit }}! New version: ${{ steps.check.outputs.version }} (${{ steps.check.outputs.type }})"'
 
+      - name: Set SHOULD_PUBLISH to true
+        if: steps.check.outputs.changed == 'true'
+        env:
+          SHOULD_PUBLISH: 'true'
+
       - name: Log when unchanged
         if: steps.check.outputs.changed == 'false'
         run: 'echo "No version change :/"'
@@ -51,7 +59,8 @@ jobs:
           prerelease: false
 
   build_on_win:
-    if: steps.check.outputs.changed == 'true'
+    needs: create-release
+    if: ${{env.SHOULD_PUBLISH}} == 'true'
     runs-on: windows-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
