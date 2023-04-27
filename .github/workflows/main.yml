@@ -39,7 +39,7 @@ jobs:
       - name: Create Release
         if: steps.check.outputs.changed == 'true'
         id: create_release
-        uses: actions/create-release@v1.0.0
+        uses: actions/create-release@v1
         with:
           tag_name: v${{steps.check.outputs.version}}
           release_name: Release v${{steps.check.outputs.version}}
