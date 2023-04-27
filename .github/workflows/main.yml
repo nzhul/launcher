@@ -40,6 +40,7 @@ jobs:
 
     outputs:
       SHOULD_PUBLISH: ${{ steps.check.outputs.changed }}
+      VERSION: ${{ steps.check.outputs.version }}
 
   build_on_win:
     needs: check-version
@@ -48,8 +49,19 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: Log running or not
-        run: 'echo "job triggered"'
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@master
+        with:
+          node-version: 18
+          cache: 'yarn'
+      - name: Install dependencies
+        run: yarn install --network-timeout 600000
+      - name: Make
+        run: yarn make
+      - uses: actions/upload-artifact@v2
+        with:
+          name: ancient-warriors-launcher-v${{needs.check-version.outputs.VERSION}}
+          path: out/make/squirrel.windows/x64
 
 
     # steps:
