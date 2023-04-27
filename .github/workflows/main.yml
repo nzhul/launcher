@@ -35,12 +35,6 @@ jobs:
         if: steps.check.outputs.changed == 'true'
         run: 'echo "Version change found in commit ${{ steps.check.outputs.commit }}! New version: ${{ steps.check.outputs.version }} (${{ steps.check.outputs.type }})"'
 
-      - name: Set SHOULD_PUBLISH to true
-        if: steps.check.outputs.changed == 'true'
-        run: 'echo "SHOULD_PUBLISH=true"'
-        outputs:
-          SHOULD_PUBLISH: ${{ steps.check.outputs.changed }}
-
       - name: Log when unchanged
         if: steps.check.outputs.changed == 'false'
         run: 'echo "No version change :/"'
@@ -58,6 +52,9 @@ jobs:
             - Bug fixes
           draft: false
           prerelease: false
+
+    outputs:
+      SHOULD_PUBLISH: ${{ steps.check.outputs.changed }}
 
   build_on_win:
     needs: create-release
