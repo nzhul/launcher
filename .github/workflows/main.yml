@@ -9,8 +9,8 @@ permissions:
   contents: write
 
 jobs:
-  build_on_win:
-    runs-on: windows-latest
+  create-release:
+    runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -19,16 +19,14 @@ jobs:
         with:
           node-version: 18
           cache: 'yarn'
-      # - name: Install dependencies
-      #   run: yarn install --network-timeout 600000
 
-      # dido: this action works only on Linux
-      # - name: get-npm-version
-      #   id: package-version
-      #   uses: martinbeentjes/npm-get-version-action@v1.3.1
+        # dido: this action works only on Linux
+      - name: get-npm-version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@v1.3.1
 
-      # - name: Current version
-      #   run: 'Current version: ${{ steps.package-version.outputs.current-version}}'
+      - name: Current version
+        run: 'Current version: ${{ steps.package-version.outputs.current-version}}'
 
       - name: Check if version has been updated
         id: check
@@ -41,6 +39,43 @@ jobs:
       - name: Log when unchanged
         if: steps.check.outputs.changed == 'false'
         run: 'echo "No version change :/"'
+
+        # dido: try to create release first by extracting the package version from package.json
+        # only after that execute yarn run publish
+
+
+  # build_on_win:
+  #   runs-on: windows-latest
+  #   env:
+  #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: actions/setup-node@master
+  #       with:
+  #         node-version: 18
+  #         cache: 'yarn'
+  #     # - name: Install dependencies
+  #     #   run: yarn install --network-timeout 600000
+
+  #     # dido: this action works only on Linux
+  #     # - name: get-npm-version
+  #     #   id: package-version
+  #     #   uses: martinbeentjes/npm-get-version-action@v1.3.1
+
+  #     # - name: Current version
+  #     #   run: 'Current version: ${{ steps.package-version.outputs.current-version}}'
+
+  #     - name: Check if version has been updated
+  #       id: check
+  #       uses: EndBug/version-check@v2
+
+  #     - name: Log when changed
+  #       if: steps.check.outputs.changed == 'true'
+  #       run: 'echo "Version change found in commit ${{ steps.check.outputs.commit }}! New version: ${{ steps.check.outputs.version }} (${{ steps.check.outputs.type }})"'
+
+  #     - name: Log when unchanged
+  #       if: steps.check.outputs.changed == 'false'
+  #       run: 'echo "No version change :/"'
         
         # dido: try to create release first by extracting the package version from package.json
         # this will require me to change the version every time when I want new release
