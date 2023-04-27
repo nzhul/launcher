@@ -30,11 +30,11 @@ jobs:
         id: check
         uses: EndBug/version-check@v2
 
-      - name: Log when changed
+      - name: Version changed
         if: steps.check.outputs.changed == 'true'
         run: 'echo "Version change found in commit ${{ steps.check.outputs.commit }}! New version: ${{ steps.check.outputs.version }} (${{ steps.check.outputs.type }})"'
 
-      - name: Log when unchanged
+      - name: Version unchanged
         if: steps.check.outputs.changed == 'false'
         run: 'echo "No version change :/"'
 
