@@ -1,4 +1,3 @@
-# GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 name: Make and Publish to Github
 
@@ -11,13 +10,11 @@ permissions:
   contents: write
 
 env:
-  SHOULD_PUBLISH: 'false'
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
-  create-release:
+  check-version:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@master
@@ -41,76 +38,43 @@ jobs:
         if: steps.check.outputs.changed == 'false'
         run: 'echo "No version change :/"'
 
-      - name: Create Release
-        if: steps.check.outputs.changed == 'true'
-        id: create_release
-        uses: actions/create-release@v1
-        with:
-          tag_name: v${{steps.check.outputs.version}}
-          release_name: Release v${{steps.check.outputs.version}}
-          body: |
-            Changes in this release:
-            - Add new feature (todo: resolve dynamically)
-            - Bug fixes
-          draft: false
-          prerelease: false
-
     outputs:
       SHOULD_PUBLISH: ${{ steps.check.outputs.changed }}
 
   build_on_win:
-    needs: create-release
-    if: ${{needs.create-release.outputs.SHOULD_PUBLISH}} == 'true'
+    needs: check-version
+    if: needs.check-version.outputs.SHOULD_PUBLISH == 'true'
     runs-on: windows-latest
     env:
-      GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@master
-        with:
-          node-version: 18
-          cache: 'yarn'
-      - name: Install dependencies
-        run: yarn install --network-timeout 600000
-      - name: Publish
-        run: yarn run publish
-
-        # dido: try to create release first by extracting the package version from package.json
-        # only after that execute yarn run publish
+      - name: Log running or not
+        run: 'echo "job triggered"'
 
 
-  # build_on_win:
-  #   runs-on: windows-latest
-  #   env:
-  #     GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - uses: actions/setup-node@master
-  #       with:
-  #         node-version: 18
-  #         cache: 'yarn'
-  #     # - name: Install dependencies
-  #     #   run: yarn install --network-timeout 600000
+    # steps:
+    #   - uses: actions/checkout@v2
+    #   - uses: actions/setup-node@master
+    #     with:
+    #       node-version: 18
+    #       cache: 'yarn'
+    #   - name: Install dependencies
+    #     run: yarn install --network-timeout 600000
+    #   - name: Make
+    #     run: yarn make
 
-        
-        # dido: try to create release first by extracting the package version from package.json
-        # this will require me to change the version every time when I want new release
-        # what I can do is to check if the version has been changed.
-        # if yes > trigger the release
-        # version-checker: https://github.com/marketplace/actions/version-check
-        # get current release version: https://github.com/marketplace/actions/get-current-package-version
+
+
       # - name: Create Release
+      #   if: steps.check.outputs.changed == 'true'
       #   id: create_release
-      #   uses: actions/create-release@v1.0.0
+      #   uses: actions/create-release@v1
       #   with:
-      #     tag_name: v${{github.run_number}} # Replace with the desired tag name for the release
-      #     release_name: Release v${{github.run_number}} # Replace with the desired name for the release
+      #     tag_name: v${{steps.check.outputs.version}}
+      #     release_name: Release v${{steps.check.outputs.version}}
       #     body: |
       #       Changes in this release:
       #       - Add new feature (todo: resolve dynamically)
       #       - Bug fixes
       #     draft: false
       #     prerelease: false
-
-      # - name: Publish
-      #   run: yarn run publish
