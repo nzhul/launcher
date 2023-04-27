@@ -1,3 +1,5 @@
+# GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 name: Make and Publish to Github
 
 on:
@@ -15,7 +17,7 @@ jobs:
   create-release:
     runs-on: ubuntu-latest
     env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@master
@@ -61,7 +63,7 @@ jobs:
     if: ${{needs.create-release.outputs.SHOULD_PUBLISH}} == 'true'
     runs-on: windows-latest
     env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@master
@@ -80,7 +82,7 @@ jobs:
   # build_on_win:
   #   runs-on: windows-latest
   #   env:
-  #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #     GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
   #   steps:
   #     - uses: actions/checkout@v2
   #     - uses: actions/setup-node@master
