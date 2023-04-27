@@ -20,14 +20,10 @@ jobs:
           node-version: 18
           cache: 'yarn'
 
-        # dido: this action works only on Linux
-      - name: get-npm-version
-        id: package-version
-        uses: martinbeentjes/npm-get-version-action@v1.3.1
 
-      - name: Current version
-        run: 'echo "Current version: ${{ steps.package-version.outputs.current-version}}"'
-
+      # this check works by first searching for '<WHATEVER> 1.2.3' in the commit message
+      # if it cannot find it in the commit message, it start diff check search
+      # diff check is slower and it is recommended to use the first option
       - name: Check if version has been updated
         id: check
         uses: EndBug/version-check@v2
@@ -39,6 +35,20 @@ jobs:
       - name: Log when unchanged
         if: steps.check.outputs.changed == 'false'
         run: 'echo "No version change :/"'
+
+      - name: Create Release
+        if: steps.check.outputs.changed == 'true'
+        id: create_release
+        uses: actions/create-release@v1.0.0
+        with:
+          tag_name: v${{steps.check.outputs.version}}
+          release_name: Release v${{steps.check.outputs.version}}
+          body: |
+            Changes in this release:
+            - Add new feature (todo: resolve dynamically)
+            - Bug fixes
+          draft: false
+          prerelease: false
 
         # dido: try to create release first by extracting the package version from package.json
         # only after that execute yarn run publish
@@ -57,25 +67,6 @@ jobs:
   #     # - name: Install dependencies
   #     #   run: yarn install --network-timeout 600000
 
-  #     # dido: this action works only on Linux
-  #     # - name: get-npm-version
-  #     #   id: package-version
-  #     #   uses: martinbeentjes/npm-get-version-action@v1.3.1
-
-  #     # - name: Current version
-  #     #   run: 'Current version: ${{ steps.package-version.outputs.current-version}}'
-
-  #     - name: Check if version has been updated
-  #       id: check
-  #       uses: EndBug/version-check@v2
-
-  #     - name: Log when changed
-  #       if: steps.check.outputs.changed == 'true'
-  #       run: 'echo "Version change found in commit ${{ steps.check.outputs.commit }}! New version: ${{ steps.check.outputs.version }} (${{ steps.check.outputs.type }})"'
-
-  #     - name: Log when unchanged
-  #       if: steps.check.outputs.changed == 'false'
-  #       run: 'echo "No version change :/"'
         
         # dido: try to create release first by extracting the package version from package.json
         # this will require me to change the version every time when I want new release
