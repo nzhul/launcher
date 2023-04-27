@@ -38,8 +38,8 @@ jobs:
       - name: Set SHOULD_PUBLISH to true
         if: steps.check.outputs.changed == 'true'
         run: 'echo "SHOULD_PUBLISH=true"'
-        env:
-          SHOULD_PUBLISH: 'true'
+        outputs:
+          SHOULD_PUBLISH: ${{ steps.check.outputs.changed }}
 
       - name: Log when unchanged
         if: steps.check.outputs.changed == 'false'
@@ -61,7 +61,7 @@ jobs:
 
   build_on_win:
     needs: create-release
-    if: ${{env.SHOULD_PUBLISH}} == 'true'
+    if: ${{needs.create-release.outputs.SHOULD_PUBLISH}} == 'true'
     runs-on: windows-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
