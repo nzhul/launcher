@@ -50,6 +50,22 @@ jobs:
           draft: false
           prerelease: false
 
+  build_on_win:
+    if: steps.check.outputs.changed == 'true'
+    runs-on: windows-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@master
+        with:
+          node-version: 18
+          cache: 'yarn'
+      - name: Install dependencies
+        run: yarn install --network-timeout 600000
+      - name: Publish
+        run: yarn run publish
+
         # dido: try to create release first by extracting the package version from package.json
         # only after that execute yarn run publish
 
