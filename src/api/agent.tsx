@@ -46,7 +46,7 @@ axios.interceptors.response.use(async (response) => {
 
 axios.interceptors.response.use(undefined, async (error) => {
   if (error.message === 'Network Error' && !error.response) {
-    toast.error('Network error - make sure API is running!');
+    toast.error('Network error - unable to connect to API!');
   }
 
   throw error.response;

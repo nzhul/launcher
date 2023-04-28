@@ -1,4 +1,6 @@
 # launcher
+![Make & Publish](https://github.com/nzhul/launcher/actions/workflows/main.yml/badge.svg)
+
 Trying to make Game Launcher for my game.
 Tech stack: ElectronJS, React, Typescript.
 
