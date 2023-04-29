@@ -57,7 +57,7 @@ const NavBar = () => {
                 }}
               />
               <NavButton
-                title="Store1"
+                title="Store1-Updated"
                 onClick={() => {
                   navigate("/store");
                 }}
