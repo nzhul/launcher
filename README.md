@@ -53,7 +53,9 @@ In order for the auto-update functionality to work I have set up the following:
 
 
 ### How to setup hazel on vercel ?
+Note for me: I am using my github account as login to vercel.
 Please check this article for full guide: https://medium.com/geekculture/auto-update-electron-apps-using-github-releases-c1c890f603e0
+```
 1. Register free account in vercel
 2. npm i -g vercel
 3. vercel login
@@ -64,6 +66,7 @@ Please check this article for full guide: https://medium.com/geekculture/auto-up
    1. This command sets environment variables in vercel. You can do it manually through the vercel website interface.
    2. By default Hazel refreshes his cache every 15 minutes If you want to make hazel check more often, set this as environment variable INTERVAL = 1
 8. vercel --prod
+```
 
 
 
