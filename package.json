@@ -1,7 +1,7 @@
 {
   "name": "ancient-warriors-launcher",
   "productName": "Ancient Warriors Launcher",
-  "version": "1.0.19",
+  "version": "1.0.20",
   "description": "My Electron application description",
   "main": ".webpack/main",
   "scripts": {
@@ -66,6 +66,7 @@
     "react-toastify": "^9.1.2",
     "typeface-roboto": "^1.1.13",
     "underscore": "^1.13.6",
+    "update-electron-app": "^2.0.1",
     "yauzl": "^2.10.0"
   }
 }

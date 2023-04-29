@@ -2,6 +2,7 @@ process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true';
 
 import {
   app,
+  autoUpdater,
   BrowserWindow,
   dialog,
   ipcMain,
@@ -114,6 +115,16 @@ const configString = fs.readFileSync(configFilePath, 'utf-8');
 const appConfig: AppConfig = JSON.parse(configString);
 
 app.on('ready', () => {
+  const server = 'https://hazel-674nvshvo-nzhul.vercel.app';
+  const url = `${server}/update/${process.platform}/${app.getVersion()}`;
+  console.log(url);
+  autoUpdater.setFeedURL({ url });
+  autoUpdater.checkForUpdates();
+
+  setInterval(() => {
+    autoUpdater.checkForUpdates();
+  }, 60000);
+
   mainWindow = createWindow();
 
   // TODO: Uncomment for splash
@@ -130,6 +141,26 @@ app.on('ready', () => {
       }, 1000);
     });
   }
+});
+
+autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
+  const dialogOpts = {
+    type: 'info',
+    buttons: ['Restart', 'Later'],
+    title: 'Application Update',
+    message: process.platform === 'win32' ? releaseNotes : releaseName,
+    detail:
+      'A new version has been downloaded. Restart the application to apply the updates.',
+  };
+
+  dialog.showMessageBox(dialogOpts).then((returnValue) => {
+    if (returnValue.response === 0) autoUpdater.quitAndInstall();
+  });
+});
+
+autoUpdater.on('error', (message) => {
+  console.error('There was a problem updating the application');
+  console.error(message);
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common
