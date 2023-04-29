@@ -1,0 +1,60 @@
+
+name: Make and Publish to Github
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write
+
+env:
+  GITHUB_TOKEN: ${{ secrets.CLASSIC_TOKEN }}
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@master
+        with:
+          node-version: 18
+          cache: 'yarn'
+
+
+      # this check works by first searching for '<WHATEVER> 1.2.3' in the commit message
+      # if it cannot find it in the commit message, it start diff check search
+      # diff check is slower and it is recommended to use the first option
+      - name: Check if version has been updated
+        id: check
+        uses: EndBug/version-check@v2
+
+      - name: Version changed
+        if: steps.check.outputs.changed == 'true'
+        run: 'echo "Version change found in commit ${{ steps.check.outputs.commit }}! New version: ${{ steps.check.outputs.version }} (${{ steps.check.outputs.type }})"'
+
+      - name: Version unchanged
+        if: steps.check.outputs.changed == 'false'
+        run: 'echo "No version change :/"'
+
+    outputs:
+      SHOULD_PUBLISH: ${{ steps.check.outputs.changed }}
+      VERSION: ${{ steps.check.outputs.version }}
+
+  build-on-win:
+    needs: check-version
+    if: needs.check-version.outputs.SHOULD_PUBLISH == 'true'
+    runs-on: windows-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.CLASSIC_TOKEN }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@master
+        with:
+          node-version: 18
+          cache: 'yarn'
+      - name: Install dependencies
+        run: yarn install --network-timeout 600000
+      - name: Publish
+        run: yarn run publish

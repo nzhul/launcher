@@ -32,7 +32,7 @@ const config: ForgeConfig = {
       config: {
         repository: {
           owner: 'nzhul',
-          name: 'ancient-warriors-launcher',
+          name: 'launcher',
         },
         draft: true,
       },
