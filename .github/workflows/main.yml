@@ -103,9 +103,7 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build-artifact/Ancient Warriors Launcher-${{needs.build-on-win.outputs.VERSION}} Setup.exe
-          asset_name: Ancient Warriors Launcher-${{needs.build-on-win.outputs.VERSION}} Setup.exe
-          asset_content_type: application/vnd.microsoft.portable-executable
+          asset_path: build-artifact
 
 
       # - name: Upload Asset
