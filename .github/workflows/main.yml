@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 env:
-  GITHUB_TOKEN: ${{ secrets.CLASSIC_TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   check-version:
@@ -47,7 +47,7 @@ jobs:
     if: needs.check-version.outputs.SHOULD_PUBLISH == 'true'
     runs-on: windows-latest
     env:
-      GITHUB_TOKEN: ${{ secrets.CLASSIC_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@master
