@@ -115,7 +115,7 @@ const configString = fs.readFileSync(configFilePath, 'utf-8');
 const appConfig: AppConfig = JSON.parse(configString);
 
 app.on('ready', () => {
-  const server = 'https://hazel-674nvshvo-nzhul.vercel.app';
+  const server = 'https://hazel-nzhul.vercel.app';
   const url = `${server}/update/${process.platform}/${app.getVersion()}`;
   console.log(url);
   autoUpdater.setFeedURL({ url });
