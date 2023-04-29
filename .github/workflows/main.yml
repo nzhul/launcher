@@ -61,7 +61,10 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: ancient-warriors-launcher-v${{needs.check-version.outputs.VERSION}}
-          path: out/make/squirrel.windows/x64/Ancient Warriors Launcher-${{needs.check-version.outputs.VERSION}} Setup.exe
+          path: out/make/squirrel.windows/x64
+
+          # only .exe path:
+          # path: out/make/squirrel.windows/x64/Ancient Warriors Launcher-${{needs.check-version.outputs.VERSION}} Setup.exe
 
     outputs:
       VERSION: ${{ needs.check-version.outputs.VERSION }}
@@ -103,3 +106,13 @@ jobs:
           asset_path: build-artifact/Ancient Warriors Launcher-${{needs.build-on-win.outputs.VERSION}} Setup.exe
           asset_name: Ancient Warriors Launcher-${{needs.build-on-win.outputs.VERSION}} Setup.exe
           asset_content_type: application/vnd.microsoft.portable-executable
+
+
+      # - name: Upload Asset
+      #   id: upload-release-asset
+      #   uses: actions/upload-release-asset@v1
+      #   with:
+      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+      #     asset_path: build-artifact/Ancient Warriors Launcher-${{needs.build-on-win.outputs.VERSION}} Setup.exe
+      #     asset_name: Ancient Warriors Launcher-${{needs.build-on-win.outputs.VERSION}} Setup.exe
+      #     asset_content_type: application/vnd.microsoft.portable-executable
