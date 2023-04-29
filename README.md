@@ -8,6 +8,15 @@ How it should look like when it is ready:
 
 ![01-launcher-green](https://user-images.githubusercontent.com/4274934/229272567-45921876-5ded-4e66-b00e-7c6ed7c45637.png)
 
+# How to create new release ?
+1. Change the app version in package.json.
+2. Add commit message that includes the new version. For example: "bump package version to 1.0.31"
+3. Push to master or merge PR in master
+4. Wait for the build to complete and create release in draft mode.
+5. Open the release, populate release details information and `Publish` the release.
+6. Wait for https://hazel-nzhul.vercel.app/ to pick up the changes. Depending on INTERVAL environment variable, the wait time will be between 1 and 15 minutes.
+7. The AutoUpdate should trigger on user local clients.
+
 # Memo notes:
 
 ## How publishing to github works ?
