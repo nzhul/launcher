@@ -14,7 +14,7 @@ import fs from 'fs';
 import path from 'path';
 import fetch from 'node-fetch';
 import yauzl from 'yauzl';
-import { spawn } from 'child_process';
+import { spawn, execFile } from 'child_process';
 import { PauseInfo } from './models/PauseInfo';
 import { InstallInfo } from './models/InstallInfo';
 import { extractVersion } from './common/utils';
@@ -434,6 +434,16 @@ ipcMain.on('start-game', (event) => {
     gameDirectoryName,
     gameFileName,
   );
+
+
+  // TODO: Use execFile if you face any issues with spawn
+  // execFile should support also tacking.
+  // const procc = execFile(exePath);
+  // Mr_Chriwo:
+  // By the way. i highly recommend you to use the execFile method instead of the spawn method. 
+  // spawn method creates an instance of a console which just "streams" the child process whereas execFile directly runs the application. 
+  // spawn method can leads to weird issues when trying to execute the game file. At least there were a few issues in my case which were fixed by using execFile
+
   const process = spawn(exePath);
 
   process.on('exit', (code) => {
