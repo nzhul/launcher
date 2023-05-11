@@ -10,7 +10,7 @@ import { rendererConfig } from './webpack.renderer.config';
 
 const config: ForgeConfig = {
   packagerConfig: {
-    extraResource: ['./src/assets/app.json'],
+    extraResource: ['./src/assets/app.prod.json'],
     icon: './src/assets/aw-256',
   },
   rebuildConfig: {},

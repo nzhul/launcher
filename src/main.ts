@@ -106,7 +106,7 @@ const createSplashWindow = (): BrowserWindow => {
 let configFilePath: string;
 
 if (app.isPackaged) {
-  configFilePath = path.join(process.resourcesPath, 'app.json');
+  configFilePath = path.join(process.resourcesPath, 'app.prod.json');
 } else {
   configFilePath = path.join(__dirname, 'assets/app.json');
 }

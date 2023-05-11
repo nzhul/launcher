@@ -1,0 +1,6 @@
+{
+    "appName": "My Electron App",
+    "version": "1.0.0",
+    "apiUrl": "https://aw-api.azurewebsites.net/",
+    "apiKey": "my-api-key"
+  }
