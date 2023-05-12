@@ -50,7 +50,7 @@ const createWindow = (): BrowserWindow => {
     height: 508,
     width: 365,
     resizable: true,
-    backgroundColor: '#3d3d3d',
+    backgroundColor: '#313338',
     frame: false,
     show: app.isPackaged ? false : true, // TODO: use `false` when you have splash  screen enabled.
     webPreferences: {
@@ -89,7 +89,7 @@ const createSplashWindow = (): BrowserWindow => {
   const win = new BrowserWindow({
     height: 508,
     width: 365,
-    backgroundColor: '#3d3d3d',
+    backgroundColor: '#313338',
     frame: false,
   });
 
@@ -435,13 +435,12 @@ ipcMain.on('start-game', (event) => {
     gameFileName,
   );
 
-
   // TODO: Use execFile if you face any issues with spawn
   // execFile should support also tacking.
   // const procc = execFile(exePath);
   // Mr_Chriwo:
-  // By the way. i highly recommend you to use the execFile method instead of the spawn method. 
-  // spawn method creates an instance of a console which just "streams" the child process whereas execFile directly runs the application. 
+  // By the way. i highly recommend you to use the execFile method instead of the spawn method.
+  // spawn method creates an instance of a console which just "streams" the child process whereas execFile directly runs the application.
   // spawn method can leads to weird issues when trying to execute the game file. At least there were a few issues in my case which were fixed by using execFile
 
   const process = spawn(exePath);

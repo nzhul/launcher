@@ -19,7 +19,7 @@ const RegisterSuccessPage = () => {
             <CheckCircle
               sx={{
                 fontSize: 150,
-                color: '#61B9F2',
+                color: 'primary.main',
               }}
             />
           </Box>

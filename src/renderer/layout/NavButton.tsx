@@ -1,4 +1,4 @@
-import Button from "@mui/material/Button";
+import Button from '@mui/material/Button';
 
 const NavButton: React.FC<{ title: string; onClick: () => void; sx?: any }> = ({
   title,
@@ -10,33 +10,33 @@ const NavButton: React.FC<{ title: string; onClick: () => void; sx?: any }> = ({
       onClick={onClick}
       disableRipple
       sx={{
-        WebkitAppRegion: "no-drag",
-        color: "white",
-        borderRight: "2px solid #3D3D3D",
+        WebkitAppRegion: 'no-drag',
+        color: 'white',
+        borderRight: '2px solid #313338',
         borderRadius: 0,
-        transform: "skewX(-8deg)",
-        height: "60px",
-        boxShadow: "none",
+        transform: 'skewX(-8deg)',
+        height: '60px',
+        boxShadow: 'none',
         fontWeight: 300,
         pl: 4,
         pr: 4,
-        "&:hover": {
-          boxShadow: "inset 0 0 100px 100px rgba(255, 255, 255, 0.2)",
+        '&:hover': {
+          boxShadow: 'inset 0 0 100px 100px rgba(255, 255, 255, 0.2)',
         },
-        "&:active": {
-          boxShadow: "inset 0 0 100px 100px rgba(255, 255, 255, 0.3)",
+        '&:active': {
+          boxShadow: 'inset 0 0 100px 100px rgba(255, 255, 255, 0.15)',
         },
-        "&:active span": {
-          position: "relative",
-          top: "1px",
+        '&:active span': {
+          position: 'relative',
+          top: '1px',
         },
-        mt: "-5px",
+        mt: '-5px',
         ...sx,
       }}
     >
       <span
         style={{
-          transform: "skewX(8deg)",
+          transform: 'skewX(8deg)',
         }}
       >
         {title}

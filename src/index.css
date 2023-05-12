@@ -11,7 +11,7 @@ body {
   margin: 0;
   font-family: 'Roboto';
   font-weight: 400;
-  background-color: #3d3d3d;
+  background-color: #313338;
   color: rgba(255, 255, 255, 0.8);
   overflow-x: hidden;
   overflow-y: hidden;
@@ -25,11 +25,11 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #3d3d3d;
+  background: #2b2d31;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #888;
+  background: #1a1b1e;
   border-radius: 5px;
 }
 

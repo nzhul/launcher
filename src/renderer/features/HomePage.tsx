@@ -1,16 +1,13 @@
-import { Avatar, Box, Grid, IconButton, Typography } from '@mui/material';
+import { Avatar, Box, Grid, Typography } from '@mui/material';
 import { useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
 import ChatList from '../chat/ChatList';
 import AuthContext from '../context/AuthContext';
 import FeedItem from './news/FeedItem';
-import Settings from '@mui/icons-material/Settings';
 import DownloadBtn from './download/DownloadBtn';
 import ProfileSettingsBtn from './profile/ProfileSettingsBtn';
 
 const HomePage = () => {
-  const navigate = useNavigate();
-  const { user, logout } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
 
   return (
     <Grid columnGap={2} container>
@@ -79,7 +76,7 @@ const HomePage = () => {
           </Grid>
           <Grid item xs={4}>
             <Box sx={{ ml: -1.3 }}>
-              <Typography variant="body1" color={'skyblue'}>
+              <Typography variant="body1" color="primary.main">
                 {user?.username}
               </Typography>
               <Typography variant="body2">Online </Typography>

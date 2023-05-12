@@ -71,7 +71,7 @@ const SecureTextField: React.FC<{
         // TODO: Maybe move this into the main theme ?
         '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline':
           {
-            borderColor: '#359adc', // todo; this should be main theme color - currently it is blue, but needs to be green.
+            borderColor: '#49B76B', // todo; this should be main theme color - currently it is blue, but needs to be green.
           },
         '& .MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline': {
           borderColor: '#ff6e63',

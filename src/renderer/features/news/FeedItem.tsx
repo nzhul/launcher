@@ -4,8 +4,8 @@ const FeedItem = () => {
   return (
     <Box
       sx={{
-        border: '1px solid #5E5E5E',
-        backgroundColor: '#444444',
+        border: '1px solid #1E1F22',
+        backgroundColor: '#2B2D31',
         width: '100%',
         height: '292px',
         boxShadow: 2,

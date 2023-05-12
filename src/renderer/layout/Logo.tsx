@@ -1,11 +1,12 @@
-import { Typography, Box } from "@mui/material";
-import { useContext } from "react";
-import { useNavigate } from "react-router-dom";
-import AuthContext from "../context/AuthContext";
+import { Typography, Box, useTheme } from '@mui/material';
+import { useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import AuthContext from '../context/AuthContext';
 
 const Logo = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useContext(AuthContext);
+  const theme = useTheme();
 
   return (
     <Typography
@@ -22,26 +23,26 @@ const Logo = () => {
             return;
           }
 
-          console.log("Clicked");
-          navigate("/");
+          console.log('Clicked');
+          navigate('/');
         }}
         sx={{
-          WebkitAppRegion: isAuthenticated ? "no-drag" : "drag",
-          color: "white",
-          position: "relative",
-          top: "16px",
-          left: isAuthenticated ? "0px" : "20px",
-          width: "270px",
-          height: "94px",
-          cursor: isAuthenticated ? "pointer" : "default",
-          display: "flex",
-          justifyContent: "center",
-          alignContent: "center",
+          WebkitAppRegion: isAuthenticated ? 'no-drag' : 'drag',
+          color: 'white',
+          position: 'relative',
+          top: '16px',
+          left: isAuthenticated ? '0px' : '20px',
+          width: '270px',
+          height: '94px',
+          cursor: isAuthenticated ? 'pointer' : 'default',
+          display: 'flex',
+          justifyContent: 'center',
+          alignContent: 'center',
           zIndex: 99,
         }}
       >
         <svg
-          style={{ position: "fixed", top: "-2px" }}
+          style={{ position: 'fixed', top: '-2px' }}
           width="270"
           height="101"
           viewBox="0 0 270 101"
@@ -51,7 +52,7 @@ const Logo = () => {
           <g filter="url(#filter0_d_143_338)">
             <path
               d="M266 2H4L14 80H52.1875L55 95H215L217.812 80H256L266 2Z"
-              fill="#61B9F2"
+              fill={theme.palette.primary.light}
             />
           </g>
           <defs>
@@ -93,9 +94,9 @@ const Logo = () => {
         </svg>
         <span
           style={{
-            position: "fixed",
-            top: "12px",
-            textAlign: "center",
+            position: 'fixed',
+            top: '12px',
+            textAlign: 'center',
             lineHeight: 1,
             letterSpacing: 2,
             fontSize: 26,
@@ -106,8 +107,8 @@ const Logo = () => {
         </span>
         <span
           style={{
-            position: "fixed",
-            top: "65px",
+            position: 'fixed',
+            top: '65px',
             fontSize: 14,
             fontWeight: 400,
             letterSpacing: 2,
