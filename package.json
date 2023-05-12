@@ -1,7 +1,7 @@
 {
   "name": "ancient-warriors-launcher",
   "productName": "Ancient Warriors Launcher",
-  "version": "1.0.24",
+  "version": "1.0.25",
   "description": "My Electron application description",
   "main": ".webpack/main",
   "scripts": {
