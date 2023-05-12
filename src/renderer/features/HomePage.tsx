@@ -1,4 +1,4 @@
-import { Avatar, Box, Grid, Typography } from '@mui/material';
+import { Avatar, Box, Grid, Typography, useTheme } from '@mui/material';
 import { useContext } from 'react';
 import ChatList from '../chat/ChatList';
 import AuthContext from '../context/AuthContext';
@@ -8,6 +8,7 @@ import ProfileSettingsBtn from './profile/ProfileSettingsBtn';
 
 const HomePage = () => {
   const { user } = useContext(AuthContext);
+  const theme = useTheme();
 
   return (
     <Grid columnGap={2} container>
@@ -24,7 +25,7 @@ const HomePage = () => {
             position: 'absolute',
             bottom: 0,
             left: 0,
-            background: 'linear-gradient(to bottom, rgba(61,61,61,0), #3d3d3d)',
+            background: 'linear-gradient(to bottom, rgba(61,61,61,0), #313338)',
             width: '100%',
             height: '80px',
           },
@@ -56,7 +57,7 @@ const HomePage = () => {
                   bgcolor: '#45A2DF',
                   border: '2px solid #5E5E5E',
                   '&:hover': {
-                    border: '2px solid #45A2DF',
+                    border: `2px solid ${theme.palette.primary.main}`,
                   },
                 }}
               />
